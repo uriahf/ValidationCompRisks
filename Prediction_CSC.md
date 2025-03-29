@@ -2,86 +2,54 @@ External validation of the performance of competing risks prediction
 models: a guide through modern methods - Cause specific hazard models
 ================
 
-- <a href="#steps" id="toc-steps">Steps</a>
-  - <a href="#installing-and-loading-packages-and-import-data"
-    id="toc-installing-and-loading-packages-and-import-data">Installing and
-    loading packages and import data</a>
-  - <a href="#descriptive-statistics"
-    id="toc-descriptive-statistics">Descriptive statistics</a>
-- <a href="#goal-1---develop-a-competing-risks-prediction-model"
-  id="toc-goal-1---develop-a-competing-risks-prediction-model">Goal 1 -
-  develop a competing risks prediction model</a>
-  - <a href="#11-cumulative-incidence-curves"
-    id="toc-11-cumulative-incidence-curves">1.1 Cumulative incidence
-    curves</a>
-  - <a href="#12-check-non-linearity-of-continuous-predictors"
-    id="toc-12-check-non-linearity-of-continuous-predictors">1.2 Check
-    non-linearity of continuous predictors</a>
-  - <a href="#13-checking-proportional-hazards-assumption"
-    id="toc-13-checking-proportional-hazards-assumption">1.3 Checking
-    proportional hazards assumption</a>
-  - <a href="#14-examine-the-fit-of-the-models"
-    id="toc-14-examine-the-fit-of-the-models">1.4 Examine the fit of the
-    models</a>
-  - <a
-    href="#15-plot-of-predictors-vs-estimated-risk-at-5-years-in-the-validation-data"
-    id="toc-15-plot-of-predictors-vs-estimated-risk-at-5-years-in-the-validation-data">1.5
-    Plot of predictors vs estimated risk at 5 years in the validation
-    data</a>
-- <a
-  href="#goal-2---assessing-performance-of-a-competing-risks-prediction-model"
-  id="toc-goal-2---assessing-performance-of-a-competing-risks-prediction-model">Goal
-  2 - Assessing performance of a competing risks prediction model</a>
-  - <a href="#21-calibration" id="toc-21-calibration">2.1 Calibration</a>
-    - <a href="#211-calibration-using-pseudo-observations"
-      id="toc-211-calibration-using-pseudo-observations">2.1.1 Calibration
-      using pseudo observations</a>
-      - <a href="#2111-calibration-plot-using-pseudo-observations"
-        id="toc-2111-calibration-plot-using-pseudo-observations">2.1.1.1
-        Calibration plot using pseudo observations</a>
-      - <a
-        href="#2112-numerical-summaries-of-calibration-using-pseudo-observations"
-        id="toc-2112-numerical-summaries-of-calibration-using-pseudo-observations">2.1.1.2
-        Numerical summaries of calibration using pseudo observations</a>
-    - <a href="#212-calibration-using-the-subdistribution-hazard-approach"
-      id="toc-212-calibration-using-the-subdistribution-hazard-approach">2.1.2
-      Calibration using the subdistribution hazard approach</a>
-      - <a
-        href="#2121-calibration-plot-using-the-subdistribution-hazard-approach"
-        id="toc-2121-calibration-plot-using-the-subdistribution-hazard-approach">2.1.2.1
-        Calibration plot using the subdistribution hazard approach</a>
-      - <a
-        href="#2122-numerical-summaries-of-calibration-using-the-subdistribution-hazard-approach"
-        id="toc-2122-numerical-summaries-of-calibration-using-the-subdistribution-hazard-approach">2.1.2.2
-        Numerical summaries of calibration using the subdistribution hazard
-        approach</a>
-    - <a
-      href="#2123-calibration-plot-using-pseudo-observations-loess-smoothing"
-      id="toc-2123-calibration-plot-using-pseudo-observations-loess-smoothing">2.1.2.3
-      Calibration plot using pseudo-observations (LOESS smoothing)</a>
-    - <a href="#213-observed-and-expected-ratio"
-      id="toc-213-observed-and-expected-ratio">2.1.3 Observed and Expected
-      ratio</a>
-    - <a href="#214-calibration-intercept-and-slope-using-pseudo-observations"
-      id="toc-214-calibration-intercept-and-slope-using-pseudo-observations">2.1.4
-      Calibration intercept and slope using pseudo observations</a>
-  - <a href="#22-discrimination" id="toc-22-discrimination">2.2
-    Discrimination</a>
-    - <a href="#221-c-index-and-time-dependent-auc"
-      id="toc-221-c-index-and-time-dependent-auc">2.2.1 C-index and
-      time-dependent AUC</a>
-    - <a href="#222-plot-area-under-the-curves-over-the-time"
-      id="toc-222-plot-area-under-the-curves-over-the-time">2.2.2 Plot Area
-      under the curve(s) over the time</a>
-    - <a href="#223-royston-sauerbrei-d-statistic-and-r2d"
-      id="toc-223-royston-sauerbrei-d-statistic-and-r2d">2.2.3
-      Royston-Sauerbrei D statistic and R<sup>2</sup><sub>D</sub></a>
-  - <a href="#23-overall-prediction-error"
-    id="toc-23-overall-prediction-error">2.3 Overall prediction error</a>
-- <a href="#goal-3---clinical-utility"
-  id="toc-goal-3---clinical-utility">Goal 3 - Clinical utility</a>
-- <a href="#reproducibility-ticket"
-  id="toc-reproducibility-ticket">Reproducibility ticket</a>
+- [Steps](#steps)
+  - [Installing and loading packages and import
+    data](#installing-and-loading-packages-and-import-data)
+  - [Descriptive statistics](#descriptive-statistics)
+- [Goal 1 - develop a competing risks prediction
+  model](#goal-1---develop-a-competing-risks-prediction-model)
+  - [1.1 Cumulative incidence curves](#11-cumulative-incidence-curves)
+  - [1.2 Check non-linearity of continuous
+    predictors](#12-check-non-linearity-of-continuous-predictors)
+  - [1.3 Checking proportional hazards
+    assumption](#13-checking-proportional-hazards-assumption)
+  - [1.4 Examine the fit of the
+    models](#14-examine-the-fit-of-the-models)
+  - [1.5 Plot of predictors vs estimated risk at 5 years in the
+    validation
+    data](#15-plot-of-predictors-vs-estimated-risk-at-5-years-in-the-validation-data)
+- [Goal 2 - Assessing performance of a competing risks prediction
+  model](#goal-2---assessing-performance-of-a-competing-risks-prediction-model)
+  - [2.1 Calibration](#21-calibration)
+    - [2.1.1 Calibration using pseudo
+      observations](#211-calibration-using-pseudo-observations)
+      - [2.1.1.1 Calibration plot using pseudo
+        observations](#2111-calibration-plot-using-pseudo-observations)
+      - [2.1.1.2 Numerical summaries of calibration using pseudo
+        observations](#2112-numerical-summaries-of-calibration-using-pseudo-observations)
+    - [2.1.2 Calibration using the subdistribution hazard
+      approach](#212-calibration-using-the-subdistribution-hazard-approach)
+      - [2.1.2.1 Calibration plot using the subdistribution hazard
+        approach](#2121-calibration-plot-using-the-subdistribution-hazard-approach)
+      - [2.1.2.2 Numerical summaries of calibration using the
+        subdistribution hazard
+        approach](#2122-numerical-summaries-of-calibration-using-the-subdistribution-hazard-approach)
+    - [2.1.2.3 Calibration plot using pseudo-observations (LOESS
+      smoothing)](#2123-calibration-plot-using-pseudo-observations-loess-smoothing)
+    - [2.1.3 Observed and Expected
+      ratio](#213-observed-and-expected-ratio)
+    - [2.1.4 Calibration intercept and slope using pseudo
+      observations](#214-calibration-intercept-and-slope-using-pseudo-observations)
+  - [2.2 Discrimination](#22-discrimination)
+    - [2.2.1 C-index and time-dependent
+      AUC](#221-c-index-and-time-dependent-auc)
+    - [2.2.2 Plot Area under the curve(s) over the
+      time](#222-plot-area-under-the-curves-over-the-time)
+    - [2.2.3 Royston-Sauerbrei D statistic and
+      R<sup>2</sup><sub>D</sub>](#223-royston-sauerbrei-d-statistic-and-r2d)
+  - [2.3 Overall prediction error](#23-overall-prediction-error)
+- [Goal 3 - Clinical utility](#goal-3---clinical-utility)
+- [Reproducibility ticket](#reproducibility-ticket)
 
 ## Steps
 
@@ -1052,14 +1020,12 @@ mortality. For simplicity we ignore this violation in the remainder.
 
 - Cox proportional hazard model for recurrence
 
- <strong>Cox Proportional Hazards Model</strong>
- 
- <pre>
- cph(formula = Surv(time, status_num == 1) ~ age + size + ncat + 
-     hr_status, data = rdata, x = T, y = T, surv = T)
- </pre>
- 
- <table class='gmisc_table' style='border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;' >
+<p><strong>Cox Proportional Hazards Model</strong></p>
+&#10;<pre>
+cph(formula = Surv(time, status_num == 1) ~ age + size + ncat + 
+    hr_status, data = rdata, x = T, y = T, surv = T)
+</pre>
+&#10;<table class='gmisc_table' style='border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;' >
 <thead>
 <tr>
 <th style='font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; border-left: 1px solid black; border-right: 1px solid black; text-align: center;'></th>
@@ -1095,11 +1061,10 @@ mortality. For simplicity we ignore this violation in the remainder.
 </tr>
 </tbody>
 </table>
-
- 
- <table class='gmisc_table' style='border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;' >
+&#10;
+<table class='gmisc_table' style='border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;' >
 <thead>
-<tr><th style='border-bottom: 1px solid grey; font-weight: 900; border-top: 2px solid grey; min-width: 7em; text-align: center;'></th>
+<tr><th style='border-bottom: 1px solid grey; border-top: 2px solid grey;'></th>
 <th style='font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;'>β</th>
 <th style='font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;'>S.E.</th>
 <th style='font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;'>Wald <i>Z</i></th>
@@ -1140,14 +1105,12 @@ mortality. For simplicity we ignore this violation in the remainder.
 
 - Cox proportional hazard model for non recurrence mortality
 
- <strong>Cox Proportional Hazards Model</strong>
- 
- <pre>
- cph(formula = Surv(time, status_num == 2) ~ age + size + ncat + 
-     hr_status, data = rdata, x = T, y = T, surv = T)
- </pre>
- 
- <table class='gmisc_table' style='border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;' >
+<p><strong>Cox Proportional Hazards Model</strong></p>
+&#10;<pre>
+cph(formula = Surv(time, status_num == 2) ~ age + size + ncat + 
+    hr_status, data = rdata, x = T, y = T, surv = T)
+</pre>
+&#10;<table class='gmisc_table' style='border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;' >
 <thead>
 <tr>
 <th style='font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; border-left: 1px solid black; border-right: 1px solid black; text-align: center;'></th>
@@ -1183,11 +1146,10 @@ mortality. For simplicity we ignore this violation in the remainder.
 </tr>
 </tbody>
 </table>
-
- 
- <table class='gmisc_table' style='border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;' >
+&#10;
+<table class='gmisc_table' style='border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;' >
 <thead>
-<tr><th style='border-bottom: 1px solid grey; font-weight: 900; border-top: 2px solid grey; min-width: 7em; text-align: center;'></th>
+<tr><th style='border-bottom: 1px solid grey; border-top: 2px solid grey;'></th>
 <th style='font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;'>β</th>
 <th style='font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;'>S.E.</th>
 <th style='font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;'>Wald <i>Z</i></th>
@@ -1584,6 +1546,8 @@ title("Calibration plot using subdistribution hazard approach",
 ```
 
 </details>
+
+    ## [1] "basisf_1" "basisf_2" "basisf_3" "basisf_4" "basisf_5" "basisf_6"
 
 <img src="imgs/Prediction_CSC/plot_sd-1.png" width="480" style="display: block; margin: auto;" />
 
@@ -2797,7 +2761,898 @@ par(oldpar)
 
 </details>
 
-<img src="imgs/Prediction_CSC/dca-1.png" width="672" style="display: block; margin: auto;" /><img src="imgs/Prediction_CSC/dca-2.png" width="672" style="display: block; margin: auto;" />
+    ## [1] "time points competing risks"
+    ## [1] 0.1350657
+    ## [1] "nb"
+    ##    threshold cuminc_given_pred_pos ppcr          all none total_obs
+    ## 1       0.01                    NA   NA  0.126328949    0      1000
+    ## 2       0.02                    NA   NA  0.117413938    0      1000
+    ## 3       0.03                    NA   NA  0.108315112    0      1000
+    ## 4       0.04                    NA   NA  0.099026728    0      1000
+    ## 5       0.05                    NA   NA  0.089542799    0      1000
+    ## 6       0.06                    NA   NA  0.079857084    0      1000
+    ## 7       0.07                    NA   NA  0.069963074    0      1000
+    ## 8       0.08                    NA   NA  0.059853977    0      1000
+    ## 9       0.09                    NA   NA  0.049522702    0      1000
+    ## 10      0.10                    NA   NA  0.038961843    0      1000
+    ## 11      0.11                    NA   NA  0.028163662    0      1000
+    ## 12      0.12                    NA   NA  0.017120067    0      1000
+    ## 13      0.13                    NA   NA  0.005822597    0      1000
+    ## 14      0.14                    NA   NA -0.005737606    0      1000
+    ## 15      0.15                    NA   NA -0.017569813    0      1000
+    ## 16      0.16                    NA   NA -0.029683739    0      1000
+    ## 17      0.17                    NA   NA -0.042089567    0      1000
+    ## 18      0.18                    NA   NA -0.054797977    0      1000
+    ## 19      0.19                    NA   NA -0.067820174    0      1000
+    ## 20      0.20                    NA   NA -0.081167926    0      1000
+    ## 21      0.21                    NA   NA -0.094853596    0      1000
+    ## 22      0.22                    NA   NA -0.108890181    0      1000
+    ## 23      0.23                    NA   NA -0.123291352    0      1000
+    ## 24      0.24                    NA   NA -0.138071501    0      1000
+    ## 25      0.25                    NA   NA -0.153245788    0      1000
+    ## 26      0.26                    NA   NA -0.168830190    0      1000
+    ## 27      0.27                    NA   NA -0.184841563    0      1000
+    ## 28      0.28                    NA   NA -0.201297696    0      1000
+    ## 29      0.29                    NA   NA -0.218217382    0      1000
+    ## 30      0.30                    NA   NA -0.235620487    0      1000
+    ## 31      0.31                    NA   NA -0.253528030    0      1000
+    ## 32      0.32                    NA   NA -0.271962266    0      1000
+    ## 33      0.33                    NA   NA -0.290946777    0      1000
+    ## 34      0.34                    NA   NA -0.310506577    0      1000
+    ## 35      0.35                    NA   NA -0.330668217    0      1000
+    ## [1] "probability threshold"
+    ## [1] 0.01
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.1350657
+    ## 1 2 0.2041675
+    ## [1] "pdgivenx"
+    ## [1] 0.1350657
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.1350657
+    ## [1] "probability threshold"
+    ## [1] 0.02
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.1350657
+    ## 1 2 0.2041675
+    ## [1] "pdgivenx"
+    ## [1] 0.1350657
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.1350657
+    ## [1] "probability threshold"
+    ## [1] 0.03
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.1350657
+    ## 1 2 0.2041675
+    ## [1] "pdgivenx"
+    ## [1] 0.1350657
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.1350657
+    ## [1] "probability threshold"
+    ## [1] 0.04
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.1350657
+    ## 1 2 0.2041675
+    ## [1] "pdgivenx"
+    ## [1] 0.1350657
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.1350657
+    ## [1] "probability threshold"
+    ## [1] 0.05
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.1350657
+    ## 1 2 0.2041675
+    ## [1] "pdgivenx"
+    ## [1] 0.1350657
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.1350657
+    ## [1] "probability threshold"
+    ## [1] 0.06
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.1346043
+    ## 1 2 0.2049882
+    ## [1] "pdgivenx"
+    ## [1] 0.1346043
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.1346043
+    ## [1] "probability threshold"
+    ## [1] 0.07
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.1464244
+    ## 1 2 0.2186049
+    ## [1] "pdgivenx"
+    ## [1] 0.1464244
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.1464244
+    ## [1] "probability threshold"
+    ## [1] 0.08
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.1541463
+    ## 1 2 0.2300256
+    ## [1] "pdgivenx"
+    ## [1] 0.1541463
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.1541463
+    ## [1] "probability threshold"
+    ## [1] 0.09
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.1658169
+    ## 1 2 0.2342838
+    ## [1] "pdgivenx"
+    ## [1] 0.1658169
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.1658169
+    ## [1] "probability threshold"
+    ## [1] 0.1
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.1736909
+    ## 1 2 0.2350052
+    ## [1] "pdgivenx"
+    ## [1] 0.1736909
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.1736909
+    ## [1] "probability threshold"
+    ## [1] 0.11
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.1656011
+    ## 1 2 0.2476245
+    ## [1] "pdgivenx"
+    ## [1] 0.1656011
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.1656011
+    ## [1] "probability threshold"
+    ## [1] 0.12
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.1753155
+    ## 1 2 0.2488608
+    ## [1] "pdgivenx"
+    ## [1] 0.1753155
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.1753155
+    ## [1] "probability threshold"
+    ## [1] 0.13
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.1901552
+    ## 1 2 0.2536215
+    ## [1] "pdgivenx"
+    ## [1] 0.1901552
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.1901552
+    ## [1] "probability threshold"
+    ## [1] 0.14
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.2006602
+    ## 1 2 0.2667778
+    ## [1] "pdgivenx"
+    ## [1] 0.2006602
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.2006602
+    ## [1] "probability threshold"
+    ## [1] 0.15
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.2076908
+    ## 1 2 0.2581649
+    ## [1] "pdgivenx"
+    ## [1] 0.2076908
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.2076908
+    ## [1] "probability threshold"
+    ## [1] 0.16
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.2178900
+    ## 1 2 0.2586805
+    ## [1] "pdgivenx"
+    ## [1] 0.21789
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.21789
+    ## [1] "probability threshold"
+    ## [1] 0.17
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.2323870
+    ## 1 2 0.2862026
+    ## [1] "pdgivenx"
+    ## [1] 0.232387
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.232387
+    ## [1] "probability threshold"
+    ## [1] 0.18
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.2425417
+    ## 1 2 0.2634340
+    ## [1] "pdgivenx"
+    ## [1] 0.2425417
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.2425417
+    ## [1] "probability threshold"
+    ## [1] 0.19
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.2544379
+    ## 1 2 0.2603550
+    ## [1] "pdgivenx"
+    ## [1] 0.2544379
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.2544379
+    ## [1] "probability threshold"
+    ## [1] 0.2
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.2624113
+    ## 1 2 0.2836879
+    ## [1] "pdgivenx"
+    ## [1] 0.2624113
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.2624113
+    ## [1] "probability threshold"
+    ## [1] 0.21
+    ## [1] "time points by threshold"
+    ##         5
+    ## 1 1 0.296
+    ## 1 2 0.296
+    ## [1] "pdgivenx"
+    ## [1] 0.296
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.296
+    ## [1] "probability threshold"
+    ## [1] 0.22
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.3211009
+    ## 1 2 0.3119266
+    ## [1] "pdgivenx"
+    ## [1] 0.3211009
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.3211009
+    ## [1] "probability threshold"
+    ## [1] 0.23
+    ## [1] "time points by threshold"
+    ##        5
+    ## 1 1 0.33
+    ## 1 2 0.31
+    ## [1] "pdgivenx"
+    ## [1] 0.33
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.33
+    ## [1] "probability threshold"
+    ## [1] 0.24
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.3333333
+    ## 1 2 0.3218391
+    ## [1] "pdgivenx"
+    ## [1] 0.3333333
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.3333333
+    ## [1] "probability threshold"
+    ## [1] 0.25
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.3417722
+    ## 1 2 0.3164557
+    ## [1] "pdgivenx"
+    ## [1] 0.3417722
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.3417722
+    ## [1] "probability threshold"
+    ## [1] 0.26
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.3611111
+    ## 1 2 0.3194444
+    ## [1] "pdgivenx"
+    ## [1] 0.3611111
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.3611111
+    ## [1] "probability threshold"
+    ## [1] 0.27
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.3859649
+    ## 1 2 0.2807018
+    ## [1] "pdgivenx"
+    ## [1] 0.3859649
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.3859649
+    ## [1] "probability threshold"
+    ## [1] 0.28
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.3469388
+    ## 1 2 0.3061224
+    ## [1] "pdgivenx"
+    ## [1] 0.3469388
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.3469388
+    ## [1] "probability threshold"
+    ## [1] 0.29
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.3409091
+    ## 1 2 0.2954545
+    ## [1] "pdgivenx"
+    ## [1] 0.3409091
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.3409091
+    ## [1] "probability threshold"
+    ## [1] 0.3
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.3421053
+    ## 1 2 0.3157895
+    ## [1] "pdgivenx"
+    ## [1] 0.3421053
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.3421053
+    ## [1] "probability threshold"
+    ## [1] 0.31
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.3225806
+    ## 1 2 0.3548387
+    ## [1] "pdgivenx"
+    ## [1] 0.3225806
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.3225806
+    ## [1] "probability threshold"
+    ## [1] 0.32
+    ## [1] "time points by threshold"
+    ##        5
+    ## 1 1 0.40
+    ## 1 2 0.32
+    ## [1] "pdgivenx"
+    ## [1] 0.4
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.4
+    ## [1] "probability threshold"
+    ## [1] 0.33
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.4166667
+    ## 1 2 0.2916667
+    ## [1] "pdgivenx"
+    ## [1] 0.4166667
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.4166667
+    ## [1] "probability threshold"
+    ## [1] 0.34
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.4761905
+    ## 1 2 0.2380952
+    ## [1] "pdgivenx"
+    ## [1] 0.4761905
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.4761905
+    ## [1] "probability threshold"
+    ## [1] 0.35
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.4117647
+    ## 1 2 0.2352941
+    ## [1] "pdgivenx"
+    ## [1] 0.4117647
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.4117647
+
+<img src="imgs/Prediction_CSC/dca-1.png" width="672" style="display: block; margin: auto;" />
+
+    ## [1] "time points competing risks"
+    ## [1] 0.1032066
+    ## [1] "nb"
+    ##    threshold cuminc_given_pred_pos ppcr          all none total_obs
+    ## 1       0.01                    NA   NA  0.094148101    0      1000
+    ## 2       0.02                    NA   NA  0.084904715    0      1000
+    ## 3       0.03                    NA   NA  0.075470743    0      1000
+    ## 4       0.04                    NA   NA  0.065840229    0      1000
+    ## 5       0.05                    NA   NA  0.056006969    0      1000
+    ## 6       0.06                    NA   NA  0.045964490    0      1000
+    ## 7       0.07                    NA   NA  0.035706043    0      1000
+    ## 8       0.08                    NA   NA  0.025224587    0      1000
+    ## 9       0.09                    NA   NA  0.014512770    0      1000
+    ## 10      0.10                    NA   NA  0.003562911    0      1000
+    ## 11      0.11                    NA   NA -0.007633011    0      1000
+    ## 12      0.12                    NA   NA -0.019083386    0      1000
+    ## 13      0.13                    NA   NA -0.030796988    0      1000
+    ## 14      0.14                    NA   NA -0.042783000    0      1000
+    ## 15      0.15                    NA   NA -0.055051035    0      1000
+    ## 16      0.16                    NA   NA -0.067611166    0      1000
+    ## 17      0.17                    NA   NA -0.080473951    0      1000
+    ## 18      0.18                    NA   NA -0.093650463    0      1000
+    ## 19      0.19                    NA   NA -0.107152321    0      1000
+    ## 20      0.20                    NA   NA -0.120991725    0      1000
+    ## 21      0.21                    NA   NA -0.135181493    0      1000
+    ## 22      0.22                    NA   NA -0.149735102    0      1000
+    ## 23      0.23                    NA   NA -0.164666727    0      1000
+    ## 24      0.24                    NA   NA -0.179991289    0      1000
+    ## 25      0.25                    NA   NA -0.195724506    0      1000
+    ## 26      0.26                    NA   NA -0.211882946    0      1000
+    ## 27      0.27                    NA   NA -0.228484082    0      1000
+    ## 28      0.28                    NA   NA -0.245546361    0      1000
+    ## 29      0.29                    NA   NA -0.263089267    0      1000
+    ## 30      0.30                    NA   NA -0.281133400    0      1000
+    ## 31      0.31                    NA   NA -0.299700550    0      1000
+    ## 32      0.32                    NA   NA -0.318813794    0      1000
+    ## 33      0.33                    NA   NA -0.338497582    0      1000
+    ## 34      0.34                    NA   NA -0.358777848    0      1000
+    ## 35      0.35                    NA   NA -0.379682123    0      1000
+    ## 36      0.36                    NA   NA -0.401239656    0      1000
+    ## 37      0.37                    NA   NA -0.423481555    0      1000
+    ## 38      0.38                    NA   NA -0.446440935    0      1000
+    ## 39      0.39                    NA   NA -0.470153082    0      1000
+    ## 40      0.40                    NA   NA -0.494655633    0      1000
+    ## 41      0.41                    NA   NA -0.519988779    0      1000
+    ## 42      0.42                    NA   NA -0.546195482    0      1000
+    ## 43      0.43                    NA   NA -0.573321719    0      1000
+    ## 44      0.44                    NA   NA -0.601416750    0      1000
+    ## 45      0.45                    NA   NA -0.630533418    0      1000
+    ## [1] "probability threshold"
+    ## [1] 0.01
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.1032066
+    ## 1 2 0.1873731
+    ## [1] "pdgivenx"
+    ## [1] 0.1032066
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.1032066
+    ## [1] "probability threshold"
+    ## [1] 0.02
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.1032066
+    ## 1 2 0.1873731
+    ## [1] "pdgivenx"
+    ## [1] 0.1032066
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.1032066
+    ## [1] "probability threshold"
+    ## [1] 0.03
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.1032066
+    ## 1 2 0.1873731
+    ## [1] "pdgivenx"
+    ## [1] 0.1032066
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.1032066
+    ## [1] "probability threshold"
+    ## [1] 0.04
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.1032066
+    ## 1 2 0.1873731
+    ## [1] "pdgivenx"
+    ## [1] 0.1032066
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.1032066
+    ## [1] "probability threshold"
+    ## [1] 0.05
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.1032066
+    ## 1 2 0.1873731
+    ## [1] "pdgivenx"
+    ## [1] 0.1032066
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.1032066
+    ## [1] "probability threshold"
+    ## [1] 0.06
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.1039356
+    ## 1 2 0.1886966
+    ## [1] "pdgivenx"
+    ## [1] 0.1039356
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.1039356
+    ## [1] "probability threshold"
+    ## [1] 0.07
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.1096348
+    ## 1 2 0.1960113
+    ## [1] "pdgivenx"
+    ## [1] 0.1096348
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.1096348
+    ## [1] "probability threshold"
+    ## [1] 0.08
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.1282406
+    ## 1 2 0.2128211
+    ## [1] "pdgivenx"
+    ## [1] 0.1282406
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.1282406
+    ## [1] "probability threshold"
+    ## [1] 0.09
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.1412345
+    ## 1 2 0.2240219
+    ## [1] "pdgivenx"
+    ## [1] 0.1412345
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.1412345
+    ## [1] "probability threshold"
+    ## [1] 0.1
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.1526723
+    ## 1 2 0.2270964
+    ## [1] "pdgivenx"
+    ## [1] 0.1526723
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.1526723
+    ## [1] "probability threshold"
+    ## [1] 0.11
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.1648598
+    ## 1 2 0.2321005
+    ## [1] "pdgivenx"
+    ## [1] 0.1648598
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.1648598
+    ## [1] "probability threshold"
+    ## [1] 0.12
+    ## [1] "time points by threshold"
+    ##            5
+    ## 1 1 0.175773
+    ## 1 2 0.242276
+    ## [1] "pdgivenx"
+    ## [1] 0.175773
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.175773
+    ## [1] "probability threshold"
+    ## [1] 0.13
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.1897033
+    ## 1 2 0.2493170
+    ## [1] "pdgivenx"
+    ## [1] 0.1897033
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.1897033
+    ## [1] "probability threshold"
+    ## [1] 0.14
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.1955836
+    ## 1 2 0.2586751
+    ## [1] "pdgivenx"
+    ## [1] 0.1955836
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.1955836
+    ## [1] "probability threshold"
+    ## [1] 0.15
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.2067669
+    ## 1 2 0.2706767
+    ## [1] "pdgivenx"
+    ## [1] 0.2067669
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.2067669
+    ## [1] "probability threshold"
+    ## [1] 0.16
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.2146119
+    ## 1 2 0.2831050
+    ## [1] "pdgivenx"
+    ## [1] 0.2146119
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.2146119
+    ## [1] "probability threshold"
+    ## [1] 0.17
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.2368421
+    ## 1 2 0.2789474
+    ## [1] "pdgivenx"
+    ## [1] 0.2368421
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.2368421
+    ## [1] "probability threshold"
+    ## [1] 0.18
+    ## [1] "time points by threshold"
+    ##           5
+    ## 1 1 0.25625
+    ## 1 2 0.28125
+    ## [1] "pdgivenx"
+    ## [1] 0.25625
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.25625
+    ## [1] "probability threshold"
+    ## [1] 0.19
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.2720588
+    ## 1 2 0.2867647
+    ## [1] "pdgivenx"
+    ## [1] 0.2720588
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.2720588
+    ## [1] "probability threshold"
+    ## [1] 0.2
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.2956522
+    ## 1 2 0.2608696
+    ## [1] "pdgivenx"
+    ## [1] 0.2956522
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.2956522
+    ## [1] "probability threshold"
+    ## [1] 0.21
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.2990654
+    ## 1 2 0.2523364
+    ## [1] "pdgivenx"
+    ## [1] 0.2990654
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.2990654
+    ## [1] "probability threshold"
+    ## [1] 0.22
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.3118280
+    ## 1 2 0.2688172
+    ## [1] "pdgivenx"
+    ## [1] 0.311828
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.311828
+    ## [1] "probability threshold"
+    ## [1] 0.23
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.3209877
+    ## 1 2 0.2469136
+    ## [1] "pdgivenx"
+    ## [1] 0.3209877
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.3209877
+    ## [1] "probability threshold"
+    ## [1] 0.24
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.3108108
+    ## 1 2 0.2702703
+    ## [1] "pdgivenx"
+    ## [1] 0.3108108
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.3108108
+    ## [1] "probability threshold"
+    ## [1] 0.25
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.3283582
+    ## 1 2 0.2537313
+    ## [1] "pdgivenx"
+    ## [1] 0.3283582
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.3283582
+    ## [1] "probability threshold"
+    ## [1] 0.26
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.3606557
+    ## 1 2 0.2459016
+    ## [1] "pdgivenx"
+    ## [1] 0.3606557
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.3606557
+    ## [1] "probability threshold"
+    ## [1] 0.27
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.3703704
+    ## 1 2 0.2222222
+    ## [1] "pdgivenx"
+    ## [1] 0.3703704
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.3703704
+    ## [1] "probability threshold"
+    ## [1] 0.28
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.3958333
+    ## 1 2 0.2291667
+    ## [1] "pdgivenx"
+    ## [1] 0.3958333
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.3958333
+    ## [1] "probability threshold"
+    ## [1] 0.29
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.3902439
+    ## 1 2 0.2439024
+    ## [1] "pdgivenx"
+    ## [1] 0.3902439
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.3902439
+    ## [1] "probability threshold"
+    ## [1] 0.3
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.3428571
+    ## 1 2 0.2571429
+    ## [1] "pdgivenx"
+    ## [1] 0.3428571
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.3428571
+    ## [1] "probability threshold"
+    ## [1] 0.31
+    ## [1] "time points by threshold"
+    ##       5
+    ## 1 1 0.3
+    ## 1 2 0.3
+    ## [1] "pdgivenx"
+    ## [1] 0.3
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.3
+    ## [1] "probability threshold"
+    ## [1] 0.32
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.3333333
+    ## 1 2 0.2592593
+    ## [1] "pdgivenx"
+    ## [1] 0.3333333
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.3333333
+    ## [1] "probability threshold"
+    ## [1] 0.33
+    ## [1] "time points by threshold"
+    ##        5
+    ## 1 1 0.35
+    ## 1 2 0.25
+    ## [1] "pdgivenx"
+    ## [1] 0.35
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.35
+    ## [1] "probability threshold"
+    ## [1] 0.34
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.3333333
+    ## 1 2 0.2222222
+    ## [1] "pdgivenx"
+    ## [1] 0.3333333
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.3333333
+    ## [1] "probability threshold"
+    ## [1] 0.35
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.3529412
+    ## 1 2 0.1764706
+    ## [1] "pdgivenx"
+    ## [1] 0.3529412
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.3529412
+    ## [1] "probability threshold"
+    ## [1] 0.36
+    ## [1] "time points by threshold"
+    ##          5
+    ## 1 1 0.3750
+    ## 1 2 0.1875
+    ## [1] "pdgivenx"
+    ## [1] 0.375
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.375
+    ## [1] "probability threshold"
+    ## [1] 0.37
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.2857143
+    ## 1 2 0.2142857
+    ## [1] "pdgivenx"
+    ## [1] 0.2857143
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.2857143
+    ## [1] "probability threshold"
+    ## [1] 0.38
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.2727273
+    ## 1 2 0.2727273
+    ## [1] "pdgivenx"
+    ## [1] 0.2727273
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.2727273
+    ## [1] "probability threshold"
+    ## [1] 0.39
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.2727273
+    ## 1 2 0.2727273
+    ## [1] "pdgivenx"
+    ## [1] 0.2727273
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.2727273
+    ## [1] "probability threshold"
+    ## [1] 0.4
+    ## [1] "time points by threshold"
+    ##        5
+    ## 1 1 0.25
+    ## 1 2 0.25
+    ## [1] "pdgivenx"
+    ## [1] 0.25
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.25
+    ## [1] "probability threshold"
+    ## [1] 0.41
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.2857143
+    ## 1 2 0.2857143
+    ## [1] "pdgivenx"
+    ## [1] 0.2857143
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.2857143
+    ## [1] "probability threshold"
+    ## [1] 0.42
+    ## [1] "time points by threshold"
+    ##             5
+    ## 1 1 0.1666667
+    ## 1 2 0.3333333
+    ## [1] "pdgivenx"
+    ## [1] 0.1666667
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.1666667
+    ## [1] "probability threshold"
+    ## [1] 0.43
+    ## [1] "time points by threshold"
+    ##        5
+    ## 1 1 0.25
+    ## 1 2 0.25
+    ## [1] "pdgivenx"
+    ## [1] 0.25
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.25
+    ## [1] "probability threshold"
+    ## [1] 0.44
+    ## [1] "time points by threshold"
+    ##        5
+    ## 1 1 0.25
+    ## 1 2 0.25
+    ## [1] "pdgivenx"
+    ## [1] 0.25
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0.25
+    ## [1] "probability threshold"
+    ## [1] 0.45
+    ## [1] "time points by threshold"
+    ##       5
+    ## 1 2 0.5
+    ## [1] "pdgivenx"
+    ## [1] 0
+    ## [1] "nb[t,]$cuminc"
+    ## [1] 0
+
+<img src="imgs/Prediction_CSC/dca-2.png" width="672" style="display: block; margin: auto;" />
 
 If we choose a threshold of 20%, the model had a net benefit of 0.011 in
 the development data. In the validation data, the model had a net
@@ -2809,71 +3664,68 @@ benefit of 0.014 choosing a threshold of 20%.
 sessionInfo()
 ```
 
-    ## R version 4.2.1 (2022-06-23 ucrt)
+    ## R version 4.3.2 (2023-10-31 ucrt)
     ## Platform: x86_64-w64-mingw32/x64 (64-bit)
-    ## Running under: Windows 10 x64 (build 22621)
+    ## Running under: Windows 10 x64 (build 19045)
     ## 
     ## Matrix products: default
     ## 
+    ## 
     ## locale:
-    ## [1] LC_COLLATE=English_Netherlands.utf8  LC_CTYPE=English_Netherlands.utf8   
-    ## [3] LC_MONETARY=English_Netherlands.utf8 LC_NUMERIC=C                        
-    ## [5] LC_TIME=English_Netherlands.utf8    
+    ## [1] LC_COLLATE=English_Israel.utf8  LC_CTYPE=English_Israel.utf8   
+    ## [3] LC_MONETARY=English_Israel.utf8 LC_NUMERIC=C                   
+    ## [5] LC_TIME=English_Israel.utf8    
+    ## 
+    ## time zone: Asia/Jerusalem
+    ## tzcode source: internal
     ## 
     ## attached base packages:
     ## [1] splines   stats     graphics  grDevices utils     datasets  methods  
     ## [8] base     
     ## 
     ## other attached packages:
-    ##  [1] webshot_0.5.4             gridExtra_2.3            
-    ##  [3] rsample_1.1.0             forcats_0.5.2            
-    ##  [5] stringr_1.4.1             dplyr_1.0.10             
-    ##  [7] purrr_0.3.5               readr_2.1.3              
-    ##  [9] tidyr_1.2.1               tibble_3.1.8             
-    ## [11] tidyverse_1.3.2           boot_1.3-28              
-    ## [13] gtsummary_1.6.2           kableExtra_1.3.4         
-    ## [15] knitr_1.40                plotrix_3.8-2            
-    ## [17] pec_2022.05.04            prodlim_2019.11.13       
-    ## [19] pseudo_1.4.3              geepack_1.3.9            
-    ## [21] KMsurv_0.1-5              mstate_0.3.2             
-    ## [23] riskRegression_2022.09.23 cmprsk_2.2-11            
-    ## [25] rms_6.3-0                 SparseM_1.81             
-    ## [27] Hmisc_4.7-1               ggplot2_3.3.6            
-    ## [29] Formula_1.2-4             lattice_0.20-45          
-    ## [31] survival_3.3-1            pacman_0.5.1             
+    ##  [1] webshot_0.5.5             gridExtra_2.3            
+    ##  [3] rsample_1.2.1             lubridate_1.9.3          
+    ##  [5] forcats_1.0.0             stringr_1.5.1            
+    ##  [7] dplyr_1.1.4               purrr_1.0.2              
+    ##  [9] readr_2.1.5               tidyr_1.3.1              
+    ## [11] tibble_3.2.1              ggplot2_3.5.0            
+    ## [13] tidyverse_2.0.0           boot_1.3-28.1            
+    ## [15] gtsummary_1.7.2           kableExtra_1.4.0         
+    ## [17] knitr_1.45                plotrix_3.8-4            
+    ## [19] pec_2023.04.12            prodlim_2023.08.28       
+    ## [21] pseudo_1.4.3              geepack_1.3.11           
+    ## [23] KMsurv_0.1-5              mstate_0.3.2             
+    ## [25] riskRegression_2023.12.21 cmprsk_2.2-11            
+    ## [27] rms_6.8-0                 Hmisc_5.1-2              
+    ## [29] survival_3.5-7            pacman_0.5.1             
     ## 
     ## loaded via a namespace (and not attached):
-    ##   [1] googledrive_2.0.0   TH.data_1.1-1       colorspace_2.0-3   
-    ##   [4] deldir_1.0-6        ellipsis_0.3.2      rprojroot_2.0.3    
-    ##   [7] htmlTable_2.4.1     fs_1.5.2            base64enc_0.1-3    
-    ##  [10] rstudioapi_0.14     furrr_0.3.1         listenv_0.8.0      
-    ##  [13] MatrixModels_0.5-1  lubridate_1.8.0     fansi_1.0.3        
-    ##  [16] mvtnorm_1.1-3       xml2_1.3.3          codetools_0.2-18   
-    ##  [19] jsonlite_1.8.2      gt_0.7.0            broom_1.0.1        
-    ##  [22] cluster_2.1.3       dbplyr_2.2.1        png_0.1-7          
-    ##  [25] compiler_4.2.1      httr_1.4.4          backports_1.4.1    
-    ##  [28] assertthat_0.2.1    Matrix_1.5-1        fastmap_1.1.0      
-    ##  [31] gargle_1.2.1        cli_3.4.1           htmltools_0.5.3    
-    ##  [34] quantreg_5.94       tools_4.2.1         gtable_0.3.1       
-    ##  [37] glue_1.6.2          Rcpp_1.0.9          cellranger_1.1.0   
-    ##  [40] vctrs_0.4.2         svglite_2.1.0       nlme_3.1-157       
-    ##  [43] iterators_1.0.14    broom.helpers_1.9.0 xfun_0.33          
-    ##  [46] globals_0.16.1      rvest_1.0.3         lifecycle_1.0.3    
-    ##  [49] googlesheets4_1.0.1 future_1.28.0       polspline_1.1.20   
-    ##  [52] MASS_7.3-57         zoo_1.8-11          scales_1.2.1       
-    ##  [55] hms_1.1.2           parallel_4.2.1      sandwich_3.0-2     
-    ##  [58] RColorBrewer_1.1-3  yaml_2.3.5          rpart_4.1.16       
-    ##  [61] latticeExtra_0.6-30 stringi_1.7.8       highr_0.9          
-    ##  [64] foreach_1.5.2       checkmate_2.1.0     lava_1.6.10        
-    ##  [67] mets_1.3.1          rlang_1.0.6         pkgconfig_2.0.3    
-    ##  [70] systemfonts_1.0.4   evaluate_0.17       htmlwidgets_1.5.4  
-    ##  [73] tidyselect_1.2.0    here_1.0.1          parallelly_1.32.1  
-    ##  [76] magrittr_2.0.3      R6_2.5.1            generics_0.1.3     
-    ##  [79] multcomp_1.4-20     DBI_1.1.3           haven_2.5.1        
-    ##  [82] pillar_1.8.1        foreign_0.8-82      withr_2.5.0        
-    ##  [85] nnet_7.3-17         future.apply_1.9.1  crayon_1.5.2       
-    ##  [88] modelr_0.1.9        interp_1.1-3        utf8_1.2.2         
-    ##  [91] tzdb_0.3.0          rmarkdown_2.17      timereg_2.0.2      
-    ##  [94] jpeg_0.1-9          readxl_1.4.1        grid_4.2.1         
-    ##  [97] data.table_1.14.2   reprex_2.0.2        digest_0.6.29      
-    ## [100] numDeriv_2016.8-1.1 munsell_0.5.0       viridisLite_0.4.1
+    ##  [1] sandwich_3.1-0       rlang_1.1.3          magrittr_2.0.3      
+    ##  [4] multcomp_1.4-25      furrr_0.3.1          polspline_1.1.24    
+    ##  [7] compiler_4.3.2       systemfonts_1.0.5    vctrs_0.6.5         
+    ## [10] quantreg_5.97        pkgconfig_2.0.3      fastmap_1.1.1       
+    ## [13] backports_1.4.1      utf8_1.2.4           rmarkdown_2.25      
+    ## [16] tzdb_0.4.0           MatrixModels_0.5-3   xfun_0.41           
+    ## [19] highr_0.10           timereg_2.0.5        broom_1.0.5         
+    ## [22] parallel_4.3.2       cluster_2.1.4        R6_2.5.1            
+    ## [25] stringi_1.8.3        parallelly_1.37.1    rpart_4.1.21        
+    ## [28] numDeriv_2016.8-1.1  Rcpp_1.0.12          iterators_1.0.14    
+    ## [31] future.apply_1.11.2  zoo_1.8-12           base64enc_0.1-3     
+    ## [34] timechange_0.3.0     Matrix_1.6-1.1       nnet_7.3-19         
+    ## [37] tidyselect_1.2.0     rstudioapi_0.17.1    yaml_2.3.8          
+    ## [40] codetools_0.2-19     listenv_0.9.1        lattice_0.21-9      
+    ## [43] withr_3.0.0          evaluate_0.23        foreign_0.8-85      
+    ## [46] future_1.33.1        xml2_1.3.6           pillar_1.9.0        
+    ## [49] checkmate_2.3.1      foreach_1.5.2        generics_0.1.3      
+    ## [52] rprojroot_2.0.4      hms_1.1.3            munsell_0.5.0       
+    ## [55] scales_1.3.0         globals_0.16.2       glue_1.7.0          
+    ## [58] tools_4.3.2          data.table_1.15.0    SparseM_1.81        
+    ## [61] mvtnorm_1.2-4        grid_4.3.2           colorspace_2.1-0    
+    ## [64] nlme_3.1-163         htmlTable_2.4.2      Formula_1.2-5       
+    ## [67] cli_3.6.2            fansi_1.0.6          broom.helpers_1.15.0
+    ## [70] viridisLite_0.4.2    svglite_2.1.3        lava_1.8.0          
+    ## [73] mets_1.3.4           gt_0.10.1            gtable_0.3.4        
+    ## [76] digest_0.6.34        TH.data_1.1-2        htmlwidgets_1.6.4   
+    ## [79] htmltools_0.5.7      lifecycle_1.0.4      here_1.0.1          
+    ## [82] MASS_7.3-60

@@ -1,0 +1,293 @@
+---
+title: "Probs Distribution Report Times"
+output: 
+  html_document:
+    toc: true
+params:
+  probs: NA
+  reals: NA
+  times: NA
+  fixed_horizon_times: NA
+  stratified_by: NA,
+  fixed_probability_threshold: NA
+  by: NA
+---
+
+```{=html}
+<style type="text/css">
+.main-container {
+  max-width: 1040px;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE
+)
+library(rtichoke)
+library(dplyr)
+```
+
+```{js}
+
+const ManipulateConfusionMatrixInputTables = function(radiobutton) {
+      
+    const CompetingAssumptionValueExcluded = document.getElementById('competing_assumption_radiobutton_excluded').checked
+    
+    const CensoredAssumptionValueExcluded = document.getElementById('censored_assumption_radiobutton_excluded').checked
+
+    
+    console.log('CompetingAssumptionValueExcluded')
+    console.log(CompetingAssumptionValueExcluded)
+
+
+    console.log('CensoredAssumptionValueExcluded')
+    console.log(CensoredAssumptionValueExcluded)
+    
+    let filtervalue;
+    
+    if ( CompetingAssumptionValueExcluded === true && CensoredAssumptionValueExcluded === true ) {
+    
+      filtervalue = 'all_excluded'
+    
+    } else if ( CompetingAssumptionValueExcluded === true && CensoredAssumptionValueExcluded === false ) {
+    
+      filtervalue = 'competing_excluded_censored_adjusted'
+    
+    } else if ( CompetingAssumptionValueExcluded === false && CensoredAssumptionValueExcluded === true ) {
+    
+      filtervalue = 'competing_nonevent_censored_excluded'
+    
+    } else if ( CompetingAssumptionValueExcluded === false && CensoredAssumptionValueExcluded === false ) {
+    
+      filtervalue = 'competing_nonevent_censored_adjusted'
+    
+    }
+    
+    console.log('filtervalue')
+    console.log(filtervalue)
+      
+      
+      const setMetaForInputTable = (tableID) => {
+        Reactable.setMeta(tableID, (prevMeta) => {
+        
+        console.log('prevMeta')
+        console.log(prevMeta.exclusion_assumptions)
+        
+            return prevMeta;
+        });
+    };
+    
+    
+    //console.log('reactableInputTable')
+    //console.log(reactableInputTable)
+    
+
+    // setMetaForInputTable(inputTableID);
+    
+    Reactable.setFilter('confusionMatrixInput', 'type', filtervalue) 
+    
+    }
+
+const ManipulateStratifiedBy = function(radioButton) {
+    
+      console.log('radioButton')
+      console.log(radioButton)
+      
+      const rangeFilterlabel = document.querySelector(`label[for=\"cutoff_slider\"]`);
+      
+      console.log('rangeFilterlabel')
+      console.log(rangeFilterlabel)
+      
+      console.log('rangeFilterlabel.textContent')
+      console.log(rangeFilterlabel.textContent)
+      
+      if (radioButton.value === 'probability_threshold') {
+        
+        rangeFilterlabel.textContent = 'Probability Threshold'
+      
+      } else {
+      
+        rangeFilterlabel.textContent = 'PPCR (Predicted Positives Condition Rate)'
+      
+      }
+      
+      console.log('rangeFilterlabel')
+      console.log(rangeFilterlabel)
+      
+      console.log('rangeFilterlabel.textContent')
+      console.log(rangeFilterlabel.textContent)
+    
+      Reactable.setFilter(
+      'confusion_matrix_for_display', 
+      'stratified_by', radioButton.value)
+    
+    }
+    
+const ManipulateReactablesByRadioButtons = function(radiobutton) {
+    const radioButtonValue = radiobutton.value;
+    const inputTableID = radiobutton.name.replace('condition_checkbox-', '');
+    const outputTableID = radiobutton.name.replace('condition_checkbox-confusionMatrixInput', 'confusion_matrix_for_display');
+    
+    const highlightedMetrics = {
+        'pp': { TP: true, TN: false, FP: true, FN: false, N: false, 
+                predicted_positives: true,
+                predicted_negatives: false,
+                real_positives: false,
+                censored_predicted_positives: true,
+                total_included_predicted_positives: true,
+                real_negatives: false, total_predicted_positives: true, competing_predicted_negatives: false, competing_predicted_positives: true},
+        'pn': { TP: false, TN: true, FP: false, FN: true, N: false, 
+                predicted_positives: false,
+                predicted_negatives: true,
+                real_positives: false,
+                censored_predicted_negatives: true,
+                total_included_predicted_negatives: true,
+                real_negatives: false, total_predicted_negatives: true, competing_predicted_negatives: true, competing_predicted_positives: false },
+        'ao': { TP: true, TN: true, FP: true, FN: true, N: true, 
+                predicted_positives: true, total_predicted: true,
+                predicted_negatives: true,
+                total_included_predicted_negatives: true,
+                total_included_predicted_positives: true,
+                total_included: true,
+                censored_predicted_negatives: true,
+                censored_predicted_positives: true,
+                real_positives: true, real_competing: true,
+                real_censored: true,
+                real_negatives: true, competing_predicted_negatives: true, competing_predicted_positives: true, total_real_negatives: true, total_real_positives: true, total_real_competing: true, total_predicted_positives: true, total_predicted_negatives: true, total_obs: true },
+        'rp': { TP: true, TN: false, FP: false, FN: true, N: false, real_positives: true, competing_predicted_negatives: false, competing_predicted_positives: false, total_real_positives: true },
+        'rn': { TP: false, TN: true, FP: true, FN: false, N: false, real_negatives: true, competing_predicted_negatives: false, competing_predicted_positives: false, total_real_negatives: true }
+    };
+
+    const setMetaForTable = (tableID) => {
+        Reactable.setMeta(tableID, (prevMeta) => {
+            return { highlightedMetrics: highlightedMetrics[radioButtonValue] };
+        });
+    };
+
+    setMetaForTable(inputTableID);
+    setMetaForTable(outputTableID);
+}    
+
+```
+
+```{r}
+
+nested_data_frame_with_probs_distributions <- create_nested_data_frame_with_probs_distributions(
+  probs = params$probs,
+  reals = params$reals,
+  times = params$times,
+  fixed_horizon_times = params$fixed_horizon_times,
+  by = params$by,
+  stratified_by = params$stratified_by
+)
+
+# print("nested data rds")
+
+saveRDS(nested_data_frame_with_probs_distributions, "nested_data_frame_with_probs_distributions.rds")
+
+all_time_horizons_confusion_matrix_for_display_data <- extract_all_time_horizons_confusion_matrix_for_display_data(
+  nested_data_frame_with_probs_distributions)
+
+saveRDS(all_time_horizons_confusion_matrix_for_display_data, "all_time_horizons_confusion_matrix_for_display_data.rds")
+
+confusion_matrices_data <- nested_data_frame_with_probs_distributions |>
+  extract_all_time_horizons_confusion_matrix_for_display_data() |>
+purrr::map(function(x) {
+    x |>
+      purrr::map(
+        function(y) {
+          y |>
+            tidyr::pivot_longer(
+              cols = tidyselect::any_of(
+                c("probability_threshold", "ppcr")
+              ),
+              values_to = c("chosen_cutoff"),
+              names_to = c("stratified_by")
+            )
+        }
+      ) |>
+      purrr::list_rbind()
+  }) |>
+  purrr::list_rbind()
+
+saveRDS(
+  confusion_matrices_data, 
+  "confusion_matrices_data.rds")
+
+
+
+```
+
+### Input Variables
+
+```{r results='asis'}
+create_stratified_by_radio_buttons()
+create_predictions_cutoff_filter(params$by)
+time_horizon_slider(
+  "confusion_matrix_for_display",
+  "filtered_performance_table",
+  "time_horizon",
+  "Time Horizon",
+  0,
+  5,
+  step = 1
+) # TODO: flexible time horizons
+# TODO: Fix Real Competing
+
+create_confusion_matrix_as_input_element(
+  "confusionMatrixInput", # TODO: fix this weird name
+  "confusion_matrix_for_display", 
+  real_competing = TRUE,
+  real_censored = TRUE
+)
+
+create_reference_groups_radio_buttons(names(params$probs))
+create_censored_assumptions_radio_buttons()
+create_competing_assumptions_radio_buttons()
+
+```
+
+
+
+``` {r}
+
+reference_group <- "train" #TODO: remove this
+
+# hist_predicted <- create_probs_hist_predicted_of_probs_distribution(
+#     probs_distribution = one_model_one_pop[[reference_group]][[stratified_by]]$probs_distribution[[2]],
+#     stratified_by = stratified_by, 
+#     population_name = reference_group,
+#     by = params$by,
+#     fixed_probability_threshold = params$fixed_probability_threshold
+#   )
+
+hist_predicted <- create_probs_hist_predicted_of_probs_distribution(
+  nested_data_frame_with_probs_distributions[[reference_group]][[stratified_by]]$probs_distribution[[1]], 
+  stratified_by = params$stratified_by,
+  population_name = reference_group,
+  by = params$by,
+  fixed_probability_threshold = params$fixed_probability_threshold
+)
+
+crosstalk::bscols(
+    div(hist_predicted,
+        id = "histPredictedDiv", style = htmltools::css(
+          height = "400px"
+        )
+    ),
+confusion_matrices_data |> 
+  render_confusion_matrix_for_probs_histogram(
+    "confusion_matrix_for_display"),
+  widths = c(6, 6)
+)
+
+```
+
+
+

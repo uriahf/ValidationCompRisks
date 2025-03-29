@@ -1,0 +1,1335 @@
+---
+title: "Probs Distribution Report"
+output: 
+  html_document:
+    toc: true
+params:
+  probs: NA
+  reals: NA
+  stratified_by: NA
+  by: NA
+  fixed_probability_threshold: NA
+  interactive: NA
+---
+
+```{=html}
+<style type="text/css">
+.main-container {
+  max-width: 1040px;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE
+)
+library(rtichoke)
+library(dplyr)
+```
+
+
+```{js}
+
+const ManipulateConfusionMatrixInputTables = function(radiobutton) {
+      
+    const CompetingAssumptionValueExcluded = document.getElementById('competing_assumption_radiobutton_excluded').checked
+    
+    const CensoredAssumptionValueExcluded = document.getElementById('censored_assumption_radiobutton_excluded').checked
+    
+    let filtervalue;
+    
+    if ( CompetingAssumptionValueExcluded === true && CensoredAssumptionValueExcluded === true ) {
+    
+      filtervalue = 'all_excluded'
+    
+    } else if ( CompetingAssumptionValueExcluded === true && CensoredAssumptionValueExcluded === false ) {
+    
+      filtervalue = 'competing_excluded_censored_adjusted'
+    
+    } else if ( CompetingAssumptionValueExcluded === false && CensoredAssumptionValueExcluded === true ) {
+    
+      filtervalue = 'competing_nonevent_censored_excluded'
+    
+    } else if ( CompetingAssumptionValueExcluded === false && CensoredAssumptionValueExcluded === false ) {
+    
+      filtervalue = 'competing_nonevent_censored_adjusted'
+    
+    }
+      
+      
+      const setMetaForInputTable = (tableID) => {
+        Reactable.setMeta(tableID, (prevMeta) => {
+        
+        console.log('prevMeta')
+        console.log(prevMeta.exclusion_assumptions)
+        
+            return prevMeta;
+        });
+    };
+    
+    Reactable.setFilter('confusionMatrixInput', 'type', filtervalue) 
+    
+    }
+    
+const ManipulateReferenceGroup = function(radioButton) {
+    
+      Reactable.setFilter(
+      'confusion_matrix_for_display', 
+      'reference_group', radioButton.value)
+    
+    }    
+
+const ManipulateStratifiedBy = function(radioButton) {
+      
+      const rangeFilterlabel = document.querySelector(`label[for=\"cutoff_slider\"]`);
+      
+      if (radioButton.value === 'probability_threshold') {
+        
+        rangeFilterlabel.textContent = 'Probability Threshold'
+      
+      } else {
+      
+        rangeFilterlabel.textContent = 'PPCR (Predicted Positives Condition Rate)'
+      
+      }
+    
+      Reactable.setFilter(
+      'confusion_matrix_for_display', 
+      'stratified_by', radioButton.value)
+    
+    }
+    
+const ManipulateReactablesByRadioButtons = function(radiobutton) {
+    const radioButtonValue = radiobutton.value;
+    const inputTableID = radiobutton.name.replace('condition_checkbox-', '');
+    const outputTableID = radiobutton.name.replace('condition_checkbox-confusionMatrixInput', 'confusion_matrix_for_display');
+    
+    const highlightedMetrics = {
+        'pp': { TP: true, TN: false, FP: true, FN: false, N: false, 
+                predicted_positives: true,
+                predicted_negatives: false,
+                real_positives: false,
+                censored_predicted_positives: true,
+                total_included_predicted_positives: true,
+                real_negatives: false, total_predicted_positives: true, competing_predicted_negatives: false, competing_predicted_positives: true},
+        'pn': { TP: false, TN: true, FP: false, FN: true, N: false, 
+                predicted_positives: false,
+                predicted_negatives: true,
+                real_positives: false,
+                censored_predicted_negatives: true,
+                total_included_predicted_negatives: true,
+                real_negatives: false, total_predicted_negatives: true, competing_predicted_negatives: true, competing_predicted_positives: false },
+        'ao': { TP: true, TN: true, FP: true, FN: true, N: true, 
+                predicted_positives: true, total_predicted: true,
+                predicted_negatives: true,
+                total_included_predicted_negatives: true,
+                total_included_predicted_positives: true,
+                total_included: true,
+                censored_predicted_negatives: true,
+                censored_predicted_positives: true,
+                real_positives: true, real_competing: true,
+                real_censored: true,
+                real_negatives: true, competing_predicted_negatives: true, competing_predicted_positives: true, total_real_negatives: true, total_real_positives: true, total_real_competing: true, total_predicted_positives: true, total_predicted_negatives: true, total_obs: true },
+        'rp': { TP: true, TN: false, FP: false, FN: true, N: false, real_positives: true, competing_predicted_negatives: false, competing_predicted_positives: false, total_real_positives: true },
+        'rn': { TP: false, TN: true, FP: true, FN: false, N: false, real_negatives: true, competing_predicted_negatives: false, competing_predicted_positives: false, total_real_negatives: true }
+    };
+
+    const setMetaForTable = (tableID) => {
+        Reactable.setMeta(tableID, (prevMeta) => {
+            return { highlightedMetrics: highlightedMetrics[radioButtonValue] };
+        });
+    };
+
+    setMetaForTable(inputTableID);
+    setMetaForTable(outputTableID);
+}    
+
+```
+
+## Input Variables
+
+
+```{r results='asis'}
+create_stratified_by_radio_buttons()
+create_predictions_cutoff_filter(params$by)
+time_horizon_slider(
+  "confusion_matrix_for_display",
+  "filtered_performance_table",
+  "time_horizon",
+  "Time Horizon",
+  0,
+  5,
+  step = 1
+) # TODO: flexible time horizons
+# TODO: Fix Real Competing
+
+create_confusion_matrix_as_input_element(
+  "confusionMatrixInput", 
+  "confusion_matrix_for_display", 
+  real_competing = TRUE # TODO: conditional on real competing presence
+)
+
+create_reference_groups_radio_buttons(names(params$probs))
+create_competing_assumptions_radio_buttons()
+
+```
+
+## Prediction's Distribution {.tabset}
+
+```{r}
+
+# stratified_by <- "probability_threshold"
+stratified_by <- params$stratified_by
+population_name <- "Train"
+
+# TODO: add time horizon slider
+# TODO: create_mids_and_counts_data_from_probs_times adjusted for censoring
+
+confusion_matrices_data <- run_function_over_probs_reals_lists( 
+  probs = params$probs, 
+  reals = params$reals, 
+  func = turn_reals_codes_to_reals_labels,
+  times = 0,
+  fixed_horizon_times = 1
+) |> 
+  purrr::map(
+    \(x) run_function_with_stratified_by_values(
+      x, 
+      add_probs_distributions_to_reals_labels,
+      stratified_by = stratified_by,
+      by = params$by
+    )
+  ) |>
+  extract_all_time_horizons_confusion_matrix_for_display_data() |> 
+  purrr::map(function(x) {
+    x |>
+      purrr::map(
+        function(y) {
+          y |>
+            tidyr::pivot_longer(
+              cols = tidyselect::any_of(
+                c("probability_threshold", "ppcr")
+              ),
+              values_to = c("chosen_cutoff"),
+              names_to = c("stratified_by")
+            )
+        }
+      ) |>
+      purrr::list_rbind()
+  }) |>
+  purrr::list_rbind(names_to = "reference_group")
+
+
+saveRDS(confusion_matrices_data, "confusion_matrices_data.rds")
+
+
+add_text_variables_to_probs_distribution_data <- function(
+    probs_distribution_data, stratified_by,
+    cumulative = FALSE, by) {
+ 
+  if (stratified_by == "probability_threshold") {
+ 
+  probs_distribution_data |>
+    dplyr::mutate(
+      text_obs = glue::glue("{counts} observations in "),
+      text_range = glue::glue(
+        "{ifelse(include_lower_bound==TRUE,'[','(')}{lower_bound}, \\
+        {upper_bound}{ifelse(include_upper_bound==TRUE,']',')')}")
+      ,
+      text = glue::glue("{text_obs}{text_range}")
+    )
+   
+  } else {
+   
+    if (cumulative == FALSE) {
+   
+    probs_distribution_data |>
+      dplyr::mutate(
+        text_obs = glue::glue("{counts} observations"),
+        text_range = glue::glue(
+          "Probability Percentile of {mids}"),
+        text = glue::glue("{text_obs}")
+      )
+     
+    } else {
+     
+      # print(probs_distribution_data)
+     
+      probs_distribution_data |>
+        dplyr::mutate(
+          ppcr = round(
+            1 - mids + by,
+            digits = nchar(format(by, scientific = FALSE))
+          ),
+          text_obs = glue::glue("{counts} observations with ppcr of "),
+          text_range = glue::glue(
+            "{ppcr}"),
+          text = glue::glue("{text_obs}{text_range}")
+        )
+     
+    }
+   
+  }
+ 
+}
+
+add_include_bound_variables_to_probs_distribution_data <- function(
+    probs_distribution_data) {
+ 
+  probs_distribution_data |>
+    dplyr::mutate(
+      include_lower_bound = (lower_bound == 0 & upper_bound != 0),
+      include_upper_bound = upper_bound != 0
+    )
+}
+
+prepare_cumulative_probs_distribution_data <- function(
+    probs_distribution_data, stratified_by, by){
+ 
+  if (stratified_by == "probability_threshold") {
+   
+    # print("This is the data")
+    # print(probs_distribution_data)
+ 
+  probs_distribution_data |>
+    purrr::map(
+      function(x){
+        mutate(
+          x,
+          lower_bound = 0) |>
+          add_include_bound_variables_to_probs_distribution_data() |>
+          group_by(reference_group) |>
+          mutate(
+            n_obs = sum(counts),
+            counts =  cumsum(counts)
+          ) |>
+          ungroup() |>
+          add_text_variables_to_probs_distribution_data(
+            stratified_by = stratified_by, by = by)
+      }
+    )
+   
+  } else {
+   
+    # print("by")
+    # print(by)
+   
+    probs_distribution_data |>
+      purrr::map(
+        function(x){
+          # mutate(
+          #   x,
+          #   lower_bound = 0) |>
+            group_by(x, reference_group) |>
+            dplyr::arrange(desc(mids)) |>
+            mutate(
+              n_obs = sum(counts),
+              counts =  cumsum(counts)
+            ) |>
+            ungroup() |>
+            add_text_variables_to_probs_distribution_data(
+              stratified_by, cumulative = TRUE, by = by)
+        }
+      )
+   
+  }
+ 
+}
+
+add_bounds_variables <- function(probs_distribution_data, by, stratified_by) {
+  
+  half_by <- by / 2
+ 
+  if (stratified_by == "probability_threshold") {
+ 
+ 
+  probs_distribution_data |>
+    dplyr::mutate(
+      lower_bound = dplyr::case_when(
+        mids>0 ~ round(
+          mids - half_by,
+          digits = nchar(format(by, scientific = FALSE))
+        ),
+        mids==0 ~ 0),
+      upper_bound = dplyr::case_when(
+        mids>0 ~ round(
+          mids + half_by,
+          digits = nchar(format(by, scientific = FALSE))
+        ),
+        mids==0 ~ 0)
+    ) |>
+    add_include_bound_variables_to_probs_distribution_data()
+ 
+  } else {
+   
+    probs_distribution_data |>
+      dplyr::mutate(lower_bound = mids - half_by,
+                    upper_bound = mids + half_by)
+   
+  }
+ 
+}
+
+
+
+probs_distribution <- create_probs_distribution_list(
+  params$probs[[1]], params$reals[[1]],
+        stratified_by = stratified_by,
+  by = params$by
+)
+
+# print("probs_distribution$real_positives")
+# print(probs_distribution$real_positives)
+
+
+cumulative_probs_distribution_data <- probs_distribution  |>
+  prepare_cumulative_probs_distribution_data(
+    stratified_by = stratified_by, by = by) 
+
+
+# TODO: new `turn_cumulative_probs_distribution_data_to_performance_data` that contains competing and predicted positives / negatives
+
+join_cumulative_probs_distribution_data_to_main_slider <- function(
+    main_slider_tibble, 
+    cumulative_probs_distribution_data,
+    reference_group_column_name,
+    stratified_by) {
+  
+  if (stratified_by == "probability_threshold") {
+  
+  performance_data <- main_slider_tibble |>
+    dplyr::left_join(
+      cumulative_probs_distribution_data$real_negatives |> 
+        select(reference_group, upper_bound, counts, n_obs) |> 
+        rename(
+          {{reference_group_column_name}} := "reference_group",
+          "probability_threshold" = "upper_bound",
+          "TN" = "counts",
+          "real_negatives" = "n_obs",
+        ), by = "probability_threshold"
+    ) |> 
+    mutate(
+      "FP" = real_negatives - TN
+    ) |>
+    left_join(
+      cumulative_probs_distribution_data$real_positives |>
+        select(reference_group, upper_bound, counts, n_obs) |>
+        rename(
+          {{reference_group_column_name}} := "reference_group",
+          "probability_threshold" = "upper_bound",
+          "FN" = "counts",
+          "real_positives" = "n_obs",
+        ), by = c("probability_threshold", reference_group_column_name)
+    ) |>
+    mutate(
+      "TP" = real_positives - FN
+    )
+  
+  if ( "real_competing" %in%
+    names(cumulative_probs_distribution_data) ) {
+    
+    performance_data <- performance_data |> 
+      dplyr::left_join(
+        cumulative_probs_distribution_data$real_competing |>
+        select(reference_group, upper_bound, counts, n_obs) |>
+        rename(
+          {{reference_group_column_name}} := "reference_group",
+          "probability_threshold" = "upper_bound",
+          "competing_predicted_negatives" = "counts",
+          "real_competing" = "n_obs",
+        ), by = c("probability_threshold", reference_group_column_name)
+      ) |>
+    mutate(
+      "competing_predicted_positives" = real_competing - competing_predicted_negatives
+    )
+    
+  }
+  
+  performance_data
+    
+  } else {
+
+    main_slider_tibble |>
+      dplyr::left_join(
+        cumulative_probs_distribution_data$real_negatives |>
+          dplyr::mutate(ppcr = round(ppcr, digits = 2)) |>  # TODO: fix this
+          select(reference_group, ppcr, counts, n_obs) |>
+          rename(
+            {{reference_group_column_name}} := "reference_group",
+            "FP" = "counts",
+            "real_negatives" = "n_obs",
+          ), by = "ppcr"
+      ) |> 
+      mutate(
+        "TN" = real_negatives - FP
+      ) |>
+      left_join(
+        cumulative_probs_distribution_data$real_positives |>
+          select(reference_group, ppcr, counts, n_obs) |>
+          rename(
+            {{reference_group_column_name}} := "reference_group",
+            "TP" = "counts",
+            "real_positives" = "n_obs",
+          ), by = c("ppcr", reference_group_column_name)
+      ) |>
+      mutate(
+        "FN" = real_positives - TP
+      )
+    
+  }
+  
+  
+}
+
+
+add_performance_metrics_to_performance_data <- function(
+    performance_data){
+  
+  performance_data <- performance_data |> 
+    dplyr::mutate(
+      N = real_positives + real_negatives,
+      sensitivity = TP / (TP + FN),
+      FPR = FP / (FP + TN),
+      specificity = TN / (TN + FP),
+      PPV = TP / (TP + FP),
+      NPV = TN / (TN + FN),
+      lift = (TP / (TP + FN)) / ((TP + FP) / N),
+      predicted_positives = TP + FP,
+      predicted_negatives = TN + FN,
+      real_positives = TP + FN,
+      real_negatives = FP + TN
+      # ppcr = (TP + FP) / N,
+      # NB = TP / N - (FP / N) * (
+        # probability_threshold / (1 - probability_threshold))
+    )
+  
+  if ( "real_competing" %in%
+    names(performance_data) ) {
+    
+    performance_data <- performance_data |> 
+    dplyr::mutate(
+      real_competing = competing_predicted_positives + competing_predicted_negatives,
+      predicted_positives = TP + FP + competing_predicted_positives,
+      predicted_negatives = TN + FN + competing_predicted_negatives,
+      N = real_positives + real_negatives + real_competing 
+    )
+    
+  }
+  
+  performance_data
+  
+}
+
+turn_cumulative_probs_distribution_data_to_performance_data <- function(
+    cumulative_probs_distribution_data, 
+    reference_group_column_name,
+    by = 0.01,
+    stratified_by = "probability_threshold"
+) {
+  
+  if (stratified_by == "probability_threshold") {
+    
+    main_slider_tibble <- tibble(
+        probability_threshold = round(
+          seq(0, 1, by = by),
+          digits = nchar(format(by, scientific = FALSE))
+        )
+      )
+    
+  } else {
+    
+    main_slider_tibble <- tibble(
+      
+      ppcr = round(
+        seq(0, 1, by = by),
+        digits = nchar(format(by, scientific = FALSE))
+      )
+      
+    )
+    
+    
+  }
+  
+  main_slider_tibble |> 
+    join_cumulative_probs_distribution_data_to_main_slider(
+      cumulative_probs_distribution_data = cumulative_probs_distribution_data,
+      reference_group_column_name = {{reference_group_column_name}},
+      stratified_by = stratified_by) |> 
+    add_performance_metrics_to_performance_data() 
+  
+  
+}
+
+
+performance_data <- cumulative_probs_distribution_data |>
+  turn_cumulative_probs_distribution_data_to_performance_data(
+    reference_group_column_name = "reference_group", by = by, 
+    stratified_by = stratified_by) 
+
+
+confusion_matrix_for_display_data <- create_confusion_matrix_for_display_data(performance_data, stratified_by) |>
+            tidyr::pivot_longer(
+              cols = tidyselect::any_of(
+                c("probability_threshold", "ppcr")
+              ),
+              values_to = c("chosen_cutoff"),
+              names_to = c("stratified_by")
+            )
+
+
+saveRDS(confusion_matrix_for_display_data, "confusion_matrix_for_display_data.rds")
+
+library(reactable)
+
+cmdisplay <- gsub(
+  "[,\\s]+", "_", paste(
+    "confusion_matrix_for_display", 
+    stratified_by, population_name, 
+    sep = "_"), perl = TRUE)
+
+
+confusion_matrix_style_maker <- function(){
+      
+      "function(rowInfo, column, state) {
+  const metrics = state.meta.highlightedMetrics;
+  let value;
+
+  const highlightStyles = {
+    censored_predicted_positives: { checked: '#E3F09B', unchecked: '#f3f9d7' },
+    competing_predicted_positives: { checked: '#DAB1E3', unchecked: '#f5ebf8' },
+    TP: { checked: '#90EE90', unchecked: '#F4FFF0' },
+    FP: { checked: '#FAC8CD', unchecked: '#FFF7F8' },
+    censored_predicted_negatives: { checked: '#E3F09B', unchecked: '#f3f9d7' },
+    competing_predicted_negatives: { checked: '#DAB1E3', unchecked: '#f5ebf8' },
+    TN: { checked: '#90EE90', unchecked: '#F4FFF0' },
+    FN: { checked: '#FAC8CD', unchecked: '#FFF7F8' },
+    total_real_positives: { checked: '#D3D3D3', unchecked: '#eef2f8' },
+    total_real_negatives: { checked: '#D3D3D3', unchecked: '#eef2f8' },
+    total_real_competing: { checked: '#DAB1E3', unchecked: '#f5ebf8' },
+    total_obs: { checked: '#D3D3D3', unchecked: '#eef2f8' },
+    total_predicted_positives: { checked: '#D3D3D3', unchecked: '#eef2f8' },
+    total_predicted_negatives: { checked: '#D3D3D3', unchecked: '#eef2f8' },
+    total_included_predicted_negatives: { checked: '#D3D3D3', unchecked: '#eef2f8' },
+    total_included_predicted_positives: { checked: '#D3D3D3', unchecked: '#eef2f8' },
+    total_included: { checked: '#D3D3D3', unchecked: '#eef2f8' }
+  };
+  
+  const rowMarginHighlight = (metric) => {
+    
+    if (metrics[metric] && value === metric) {
+      return { fontWeight: '600' };
+    } else if (!metrics[metric] && value === metric) {
+      return { fontWeight: '400' };
+    }
+    
+  };
+
+  const checkHighlight = (metric) => {
+    const styles = highlightStyles[metric];
+    if (metrics[metric] && value === metric) {
+      return { backgroundColor: styles.checked, fontWeight: '600' };
+    } else if (!metrics[metric] && value === metric) {
+      return { backgroundColor: styles.unchecked, fontWeight: '400' };
+    }
+    return {};
+  };
+  
+  const checkHighlightPartialFilled = (metric) => {
+  
+  let N = state.meta.n_obs
+  let width = rowInfo.values[column.id] / state.meta.n_obs
+  let background = 100*width + '%'
+  
+    const styles = highlightStyles[metric];
+    if (metrics[metric] && value === metric) {
+      return { 
+      background: `linear-gradient(90deg, ${styles.checked} ${background}, transparent ${background})`,
+      backgroundPosition: `center`,
+      backgroundSize: `98% 88%`,
+      backgroundRepeat: `no-repeat`,
+      fontWeight: '600' };
+    } else if (!metrics[metric] && value === metric) {
+      return { 
+      background: `linear-gradient(90deg, ${styles.unchecked} ${background}, transparent ${background})`,
+      backgroundPosition: `center`,
+      backgroundSize: `98% 88%`,
+      backgroundRepeat: `no-repeat`,
+      fontWeight: '400' };
+    }
+    return {};
+  };
+
+  if (column.id === 'predicted_positives') {
+    if (rowInfo.values.type.toLowerCase() === 'real_positives') {
+      value = 'TP';
+    } else if (rowInfo.values.type.toLowerCase() === 'real_negatives') {
+      value = 'FP';
+    } else if (rowInfo.values.type.toLowerCase() === 'real_competing') {
+      value = 'competing_predicted_positives';
+    } else if (rowInfo.values.type.toLowerCase() === 'real_censored') {
+      value = 'censored_predicted_positives';
+    } else if (rowInfo.values.type.toLowerCase() === 'total_predicted') {
+      value = 'total_predicted_positives';
+    } else if (rowInfo.values.type.toLowerCase() === 'total_included') {
+      value = 'total_included_predicted_positives';
+    }
+    
+    
+    //console.log('column.id')
+    //console.log(column.id)
+    
+    //console.log('rowInfo.values.type.toLowerCase()')
+    //console.log(rowInfo.values.type.toLowerCase())
+    
+    //console.log('value')
+    //console.log(value)
+    
+    if (state.meta.n_obs === undefined) {
+      
+      return checkHighlight(value);
+    
+    } else {
+    
+      return checkHighlightPartialFilled(value);
+    
+    }
+    
+    
+    
+    
+  } else if (column.id === 'predicted_negatives') {
+    if (rowInfo.values.type.toLowerCase() === 'real_positives') {
+      value = 'FN';
+    } else if (rowInfo.values.type.toLowerCase() === 'real_negatives') {
+      value = 'TN';
+    } else if (rowInfo.values.type.toLowerCase() === 'real_competing') {
+      value = 'competing_predicted_negatives';
+    } else if (rowInfo.values.type.toLowerCase() === 'real_censored') {
+      value = 'censored_predicted_negatives';
+    } else if (rowInfo.values.type.toLowerCase() === 'total_predicted') {
+      value = 'total_predicted_negatives';
+    } else if (rowInfo.values.type.toLowerCase() === 'total_included') {
+      value = 'total_included_predicted_negatives';
+    }
+    
+    //console.log('column.id')
+    //console.log(column.id)
+    
+    //console.log('rowInfo.values.type.toLowerCase()')
+    //console.log(rowInfo.values.type.toLowerCase())
+    
+    //console.log('value')
+    //console.log(value)
+    
+    if (state.meta.n_obs === undefined) {
+      
+      return checkHighlight(value);
+    
+    } else {
+    
+      return checkHighlightPartialFilled(value);
+    
+    }
+  } else if (column.id === 'total_reals') {
+    if (rowInfo.values.type.toLowerCase() === 'real_positives') {
+      value = 'total_real_positives';
+    } else if (rowInfo.values.type.toLowerCase() === 'real_negatives') {
+      value = 'total_real_negatives';
+    } else if (rowInfo.values.type.toLowerCase() === 'real_competing') {
+      value = 'total_real_competing';
+    } else if (rowInfo.values.type.toLowerCase() === 'total_predicted') {
+      value = 'total_obs';
+    } else if (rowInfo.values.type.toLowerCase() === 'total_included') {
+      value = 'total_included';
+    }
+    
+    //console.log('column.id')
+    //console.log(column.id)
+    
+    //console.log('rowInfo.values.type.toLowerCase()')
+    //console.log(rowInfo.values.type.toLowerCase())
+    
+    //console.log('value')
+    //console.log(value)
+    
+    return checkHighlightPartialFilled(value);
+      
+  } else if (column.id === 'type') {
+    
+    value = rowInfo.values.type
+    
+    //console.log('column.id')
+    //console.log(column.id)
+    
+    //console.log('rowInfo.values.type.toLowerCase()')
+    //console.log(rowInfo.values.type.toLowerCase())
+    
+    //console.log('value')
+    //console.log(value)
+    
+    return rowMarginHighlight(value);
+    
+    
+  }
+}
+
+"
+    
+  }
+
+
+ create_checkbox_for_confusion_matrix_for_probs_histogram <- function(
+    confusion_metric) {
+  paste0(
+    "<input type='radio' ${checked} value=${checkboxName} name=${radioButtonGroup} id = ${checkboxId} onclick=synchronizeCheckboxes(this)",
+    "><br>${name}"
+  )
+}
+
+
+ create_confusion_matrix_renered_text <- function(
+    confusion_metric) {
+  paste0(
+    confusion_metric, "<br>${value}"
+  )
+}
+
+confusion_matrix_for_display <- render_confusion_matrix_for_probs_histogram(
+  confusion_matrices_data,
+  "confusion_matrix_for_display"
+)
+
+
+full_hist_dat <- create_full_hist_dat(probs_distribution)
+
+
+population_name <- "Train"
+
+div_histogram_predicted_id <-gsub(
+  "[,\\s]+", "_", paste(
+    "DivPredicted", 
+    stratified_by, population_name, 
+    sep = "_"), perl = TRUE)
+
+histogram_predicted_id <- gsub(
+  "[,\\s]+", "_", paste("hist-predicted",
+                        stratified_by,
+                        population_name,
+                        sep = "_"
+  ), perl = TRUE)
+
+
+
+filteredperformancetableId <- gsub(
+  "[,\\s]+", "_", paste(
+    "filtered_performance_table", 
+    stratified_by, population_name, 
+    sep = "_"), perl = TRUE)
+
+
+inputId <- sprintf("filter_%s_%s", cmdisplay, stratified_by)
+
+
+
+
+# TODO: complete manipulation from input checkboxes in reactable
+
+  script <- sprintf("
+    
+    
+    const ManipulateReactablesByRadioButtons = function(radiobutton) {
+    const radioButtonValue = radiobutton.value;
+    const inputTableID = radiobutton.name.replace('condition_checkbox-', '');
+    const outputTableID = radiobutton.name.replace('condition_checkbox-confusionMatrixInput', 'confusion_matrix_for_display');
+    
+    const highlightedMetrics = {
+        'pp': { TP: true, TN: false, FP: true, FN: false, N: false, 
+                predicted_positives: true,
+                predicted_negatives: false,
+                real_positives: false,
+                total_included_predicted_positives: true,
+                real_negatives: false, total_predicted_positives: true, competing_predicted_negatives: false, competing_predicted_positives: true},
+        'pn': { TP: false, TN: true, FP: false, FN: true, N: false, 
+                predicted_positives: false,
+                predicted_negatives: true,
+                real_positives: false,
+                total_included_predicted_negatives: true,
+                real_negatives: false, total_predicted_negatives: true, competing_predicted_negatives: true, competing_predicted_positives: false },
+        'ao': { TP: true, TN: true, FP: true, FN: true, N: true, 
+                predicted_positives: true, total_predicted: true,
+                predicted_negatives: true,
+                total_included_predicted_negatives: true,
+                total_included_predicted_positives: true,
+                total_included: true,
+                real_positives: true, real_competing: true,
+                real_censored: true,
+                real_negatives: true, competing_predicted_negatives: true, competing_predicted_positives: true, total_real_negatives: true, total_real_positives: true, total_real_competing: true, total_predicted_positives: true, total_predicted_negatives: true, total_obs: true },
+        'rp': { TP: true, TN: false, FP: false, FN: true, N: false, real_positives: true, competing_predicted_negatives: false, competing_predicted_positives: false, total_real_positives: true },
+        'rn': { TP: false, TN: true, FP: true, FN: false, N: false, real_negatives: true, competing_predicted_negatives: false, competing_predicted_positives: false, total_real_negatives: true }
+    };
+
+    const setMetaForTable = (tableID) => {
+        Reactable.setMeta(tableID, (prevMeta) => {
+            return { highlightedMetrics: highlightedMetrics[radioButtonValue] };
+        });
+    };
+
+    setMetaForTable(inputTableID);
+    setMetaForTable(outputTableID);
+}
+    
+    
+    function synchronizeCheckboxes(checkbox) {
+    
+    
+  let tableID = checkbox.name.replace('_headerRadioGroup', '');
+  
+  const falseNegatives = d3.selectAll('.false-negatives');
+  
+  const parentDiv = d3.select('#hist-predicted_probability_threshold_model');
+                      
+  
+  
+  const svg = parentDiv.select('svg');
+  
+  svg.selectAll('.false-negatives').attr('fill', 'red')
+  
+  
+  const NCheckbox = document.getElementById('header_checkbox_'+
+tableID + '_type');
+  const pnCheckbox = document.getElementById('header_checkbox_'+
+tableID + '_predicted_negatives');
+const ppCheckbox = document.getElementById('header_checkbox_'+
+tableID + '_predicted_positives');
+const rpCheckbox = document.getElementById('reals_checkbox_'+
+tableID + '_0');
+const rnCheckbox = document.getElementById('reals_checkbox_'+
+tableID + '_1');
+  
+  var nCheckboxes = document.querySelectorAll('input[type=\"radio\"][value=\"type\"]');
+  var rpRadioButtons = document.querySelectorAll('input[type=\"radio\"][value=\"real_positives\"]');
+  var rnRadioButtons = document.querySelectorAll('input[type=\"radio\"][value=\"real_negatives\"]');
+  
+    //var FNfillColor = (NCheckbox.checked || pnCheckbox.checked) ? '#FAC8CD' : '#FFF7F8';
+    
+        
+        
+
+    var FNfillColor = 'blue';
+    
+    
+    var falseNegativesBars = svg.selectAll('.false-negatives')
+    
+    falseNegativesBars.attr('fill', FNfillColor);
+                      
+                      
+    var FPfillColor = (NCheckbox.checked || ppCheckbox.checked) ? '#FAC8CD' : '#FFF7F8';
+                      svg.selectAll('.false-positives').attr('fill', FPfillColor);
+                      
+                      
+                      var TNfillColor = (NCheckbox.checked || pnCheckbox.checked ) ? '#009e73' : '#F4FFF0';
+                      svg.selectAll('.true-negatives').attr('fill', TNfillColor);
+                      
+                      var TPfillColor = (NCheckbox.checked || ppCheckbox.checked ) ? '#009e73' : '#F4FFF0';
+                      svg.selectAll('.true-positives').attr('fill', TPfillColor);
+                      
+                      
+  if (checkbox.value === 'real_positives') {
+  
+  rpRadioButtons.forEach(function(radioButton) {
+    radioButton.addEventListener('change', function() {
+    })
+    
+    radioButton.checked = true
+  })
+  
+  trRadioButtons.forEach(function(radioButton) {
+    radioButton.addEventListener('change', function() {
+    })
+    
+    radioButton.checked = true
+  })
+  
+  
+  } else if (checkbox.value === 'real_negatives') {
+  
+  rnRadioButtons.forEach(function(radioButton) {
+    radioButton.addEventListener('change', function() {
+    })
+    
+    radioButton.checked = true
+    })
+    
+    trRadioButtons.forEach(function(radioButton) {
+    radioButton.addEventListener('change', function() {
+    })
+    
+    radioButton.checked = true
+  })
+    
+  }
+  
+  Reactable.setMeta(tableID, 
+  prevMeta => {
+
+    let updatedMetrics = {
+      TP: prevMeta.highlightedMetrics.TP,
+      TN: prevMeta.highlightedMetrics.TN,
+      FP: prevMeta.highlightedMetrics.FP,
+      FN: prevMeta.highlightedMetrics.FN,
+      predicted_positives: false,
+      predicted_negatives: false,
+      real_positives: false,
+      real_negatives: false,
+      total_predicted: false,
+      total_reals: false,
+      N: true
+    };
+    
+  if (checkbox.value === 'type') {
+  
+  updatedMetrics['TP'] = true
+  updatedMetrics['FP'] = true
+  updatedMetrics['TN'] = true
+  updatedMetrics['FN'] = true
+  updatedMetrics['real_positives'] = true
+  updatedMetrics['real_negatives'] = true
+  updatedMetrics['predicted_positives'] = true
+  updatedMetrics['predicted_negatives'] = true
+  updatedMetrics['N'] = true
+  
+  } else if (checkbox.value === 'real_positives') {
+  
+  console.log('chose real positives')
+  
+  updatedMetrics['TN'] = false
+  updatedMetrics['FP'] = false
+  updatedMetrics['TP'] = true
+  updatedMetrics['FN'] = true
+  updatedMetrics['real_positives'] = true
+  updatedMetrics['real_negatives'] = false
+  updatedMetrics['predicted_positives'] = false
+  updatedMetrics['predicted_negatives'] = false
+  updatedMetrics['N'] = false
+  
+  } else if (checkbox.value === 'real_negatives') {
+  
+  updatedMetrics['TP'] = false
+  updatedMetrics['FN'] = false
+  updatedMetrics['TN'] = true
+  updatedMetrics['FP'] = true
+  updatedMetrics['real_positives'] = false
+  updatedMetrics['real_negatives'] = true
+  updatedMetrics['predicted_positives'] = false
+  updatedMetrics['predicted_negatives'] = false
+  updatedMetrics['N'] = false
+  
+  } else if (checkbox.value === 'predicted_positives') {
+  
+  updatedMetrics['TN'] = false
+  updatedMetrics['FN'] = false
+  updatedMetrics['TP'] = true
+  updatedMetrics['FP'] = true
+  updatedMetrics['real_positives'] = false
+  updatedMetrics['real_negatives'] = false
+  updatedMetrics['predicted_positives'] = true
+  updatedMetrics['predicted_negatives'] = false
+  updatedMetrics['N'] = false
+  
+  } else if (checkbox.value === 'predicted_negatives') {
+  
+  updatedMetrics['TP'] = false
+  updatedMetrics['FP'] = false
+  updatedMetrics['FN'] = true
+  updatedMetrics['TN'] = true
+  updatedMetrics['real_positives'] = false
+  updatedMetrics['real_negatives'] = false
+  updatedMetrics['predicted_positives'] = false
+  updatedMetrics['predicted_negatives'] = true
+  updatedMetrics['N'] = false
+  
+  } 
+  
+  console.log('checkbox name')
+  console.log(checkbox.name)
+  
+  console.log('checkbox value')
+  console.log(checkbox.value)
+  
+  console.log('meta')
+  console.log(updatedMetrics)
+
+    return { highlightedMetrics: updatedMetrics };
+  });
+}")
+  
+ 
+
+  create_checkbox_id <- function(
+    confusion_metric,  
+    confusionMatrixInputID){
+    
+    paste0("'", paste(
+      paste(confusion_metric, "checkbox", sep = "_"), 
+      confusionMatrixInputID, sep = "-"), "'")
+    
+  }
+  
+  
+  confusion_matrix_header_maker <- function(confusionMatrixInputID, cmdisplayID) {
+    paste('function(column, state) {
+    
+    const checkbox_id = column.column.id + "_checkbox" + "-" + state.meta.elementID
+  
+  const checkbox_name = "condition_checkbox-" + state.meta.elementID
+    
+    if ( column.column.id === "predicted_positives" ) {
+
+        return `<input type = "radio" id = ${checkbox_id} value = "pp" name = ${checkbox_name} checked = false onclick=ManipulateReactablesByRadioButtons(this)> Predicted Positives`
+        
+      } else if ( column.column.id === "predicted_negatives" ) {
+      
+    return `<input type = "radio" id = ${checkbox_id} value = "pn" name = ${checkbox_name} checked = false onclick=ManipulateReactablesByRadioButtons(this)> Predicted Negatives` } else if ( column.column.id === "type" ) {
+    
+    return `<input type = "radio" id = ${checkbox_id} value = "ao" name = ${checkbox_name} checked = false onclick=ManipulateReactablesByRadioButtons(this)> <br>All<br>Observations` }
+      }')
+  }
+  
+
+  
+  cmdisplay <- gsub(
+    "[,\\s]+", "_", paste(
+      "confusion_matrix_for_display", 
+      stratified_by, population_name, 
+      sep = "_"), perl = TRUE)
+  
+  
+  
+
+
+# TODO: confusion matrix cell maker to pure JS function
+
+  confusion_matrix_cell_maker <- function(confusionMatrixInputID, cmdisplayID) {
+    
+    'function(cellInfo, state) {
+    const { currency, exchangeRates, elementID } = state.meta;
+    const cellInfoValueMetric = cellInfo.value.toLowerCase();
+
+    const specialCases = {
+        "competing_predicted_positives": "Competing & Predicted Positives",
+        "competing_predicted_negatives": "Competing & Predicted Negatives",
+        "censored_predicted_positives": "Censored & Predicted Positives",
+        "censored_predicted_negatives": "Censored & Predicted Negatives",
+        "real_competing": "Real Competing",
+        "real_censored": "Real Censored"
+    };
+
+    const simpleCases = ["tp", "fp", "tn", "fn"];
+
+    if (simpleCases.includes(cellInfoValueMetric)) {
+        return `${cellInfo.value}`;
+    }
+
+    if (specialCases[cellInfoValueMetric]) {
+        return specialCases[cellInfoValueMetric];
+    }
+
+    if (cellInfoValueMetric === "real_positives" || cellInfoValueMetric === "real_negatives") {
+        const checkbox_id = `${cellInfoValueMetric}_checkbox-${elementID}`;
+        const checkbox_name = `condition_checkbox-${elementID}`;
+        const value = cellInfoValueMetric === "real_positives" ? "rp" : "rn";
+        const label = cellInfoValueMetric === "real_positives" ? "Real Positives" : "Real Negatives";
+
+        return `<input type="radio" id="${checkbox_id}" value="${value}" name="${checkbox_name}" checked="false" onclick="ManipulateReactablesByRadioButtons(this)"> ${label}`;
+    }
+
+    return `${cellInfo.value}`;
+}'
+    
+    
+  }
+  
+    # TODO one function (pure JS) for cell styling (all tables)
+    # if n_obs exists in the data -> return
+    # TODO one function (pure JS) for cell content (all tables)
+
+
+  
+  render_filtered_performance_data <- function(
+    filtered_performance_data, elementID) {
+    
+    filterMinValue <- JS("function(rows, columnId, filterValue) {
+  return rows.filter(function(row) {
+    return row.values[columnId] == filterValue
+  })
+}")
+    
+    filtered_performance_data <- filtered_performance_data |>
+      dplyr::select(any_of(
+        c(
+          "probability_threshold", "sensitivity", "specificity",
+          "PPV", "NPV", "ppcr"
+        )
+      ))
+    
+    reactable::reactable(
+      filtered_performance_data,
+      sortable = FALSE,
+      fullWidth = FALSE,
+      borderless = FALSE,
+      elementId = elementID,
+      pagination = FALSE,
+      defaultColDef = reactable::colDef(
+        filterMethod = filterMinValue, show = FALSE
+      ),
+      columns = list(
+        # probability_threshold = reactable::colDef(
+        # filterMethod = filterMinValue, show = FALSE
+        # ),
+        # ppcr = reactable::colDef(
+        # filterMethod = filterMinValue, show = FALSE
+        # ),
+        sensitivity = reactable::colDef(
+          name = "Sens", style = function(value) {
+            rtichoke:::bar_style_perf(width = value)
+          },
+          format = reactable::colFormat(digits = 2),
+          show = TRUE
+        ),
+        specificity = reactable::colDef(
+          name = "Spec", style = function(value) {
+            rtichoke:::bar_style_perf(width = value)
+          }, format = reactable::colFormat(digits = 2),
+          show = TRUE
+        ),
+        PPV = reactable::colDef(
+          name = "PPV", style = function(value) {
+            rtichoke:::bar_style_perf(width = value)
+          }, format = reactable::colFormat(digits = 2),
+          show = TRUE
+        ),
+        NPV = reactable::colDef(
+          name = "NPV", style = function(value) {
+            rtichoke:::bar_style_perf(width = value)
+          }, format = reactable::colFormat(digits = 2),
+          show = TRUE
+        )
+      ),
+      meta = list(
+        highlightedMetrics = list(
+          TP = TRUE,
+          FP = TRUE,
+          TN = TRUE,
+          FN = TRUE,
+          N = TRUE,
+          predicted_positives = TRUE,
+          predicted_negatives = TRUE,
+          real_positives = TRUE,
+          real_negatives = TRUE,
+          total_reals = FALSE,
+          total_predicted = FALSE
+        )
+      )
+    )
+    
+  }
+  
+  filtered_performance_table <- render_filtered_performance_data(
+    performance_data, filteredperformancetableId)
+  
+  rangeFilter <- function(tableId, tableId2, columnId, label, min, max, value = NULL, step = NULL, width = "200px") {
+    value <- if (!is.null(value)) value else min
+    inputId <- sprintf("filter_%s_%s", tableId, columnId)
+    valueId <- sprintf("filter_%s_%s__value", tableId, columnId)
+    oninput <- paste(
+      sprintf("document.getElementById('%s').textContent = this.value;", valueId),
+      sprintf("Reactable.setFilter('%s', '%s', this.value);", tableId2, columnId),
+      sprintf("Reactable.setFilter('%s', '%s', this.value)", tableId, columnId)
+    )
+    
+    # inputId <- "filter_confusion_matrix_for_display_probability_threshold_Train"
+    
+    # print("inputId in range filter scope")
+    # print(inputId)
+    
+    div(
+      tags$label(`for` = inputId, label),
+      div(
+        style = sprintf("display: flex; align-items: center; width: %s", validateCssUnit(width)),
+        tags$input(
+          id = inputId,
+          type = "range",
+          min = min,
+          max = max,
+          step = step,
+          value = value,
+          oninput = oninput,
+          onchange = oninput, # For IE11 support
+          style = "width: 100%;"
+        ),
+        span(id = valueId, style = "margin-left: 8px;", value)
+      )
+    )
+  }
+  
+
+  
+  hist_predicted <- r2d3::r2d3(
+    data = full_hist_dat,
+    script = "probs_hist_times.js",
+    width = 350,
+    height = 350,
+    container = 'div', 
+    elementId = "histogramPredicted",
+    options = list(
+      by = by)
+  )
+  
+  
+  
+```
+
+```{r}
+
+confusion_matrix_for_display
+
+```
+
+```{r}
+  
+  library(htmltools)
+  
+  
+  crosstalk::bscols(
+    widths = c(6, 6, 6, 6),
+    div(
+      rangeFilter(
+        cmdisplay,
+        filteredperformancetableId,
+        stratified_by,
+        ifelse(stratified_by == "probability_threshold",
+               "Probability Threshold: ",
+               "Predicted Positive (Rate)"),
+        0,
+        1,
+        step = by,
+        value = params$fixed_probability_threshold
+      ),
+      tags$script(HTML(script))
+    ),
+    div(hist_predicted,
+        id = "histPredictedDiv", style = css(
+          height = "400px"#,
+          # border = "3px red solid"
+        )
+    ),
+    # hist_predicted,
+    div(filtered_performance_table)
+  )
+
+```

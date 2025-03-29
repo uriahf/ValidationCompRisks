@@ -8,13 +8,11 @@ output:
   keep_text: true
   pandoc_args: --webtex
 ---
-  
+
 ## Steps
-  
-The steps taken in this file are:   
-1. To develop a competing risks prediction model using the cause specific hazards approach.
-2. To assess the performance of the model in terms of calibration, discrimination and overall prediction error. We calculate the apparent (no internal validation) validation and the external validation.
-3. To assess the potential clinical utility the model using decision curve analysis.
+
+The steps taken in this file are:\
+1. To develop a competing risks prediction model using the cause specific hazards approach. 2. To assess the performance of the model in terms of calibration, discrimination and overall prediction error. We calculate the apparent (no internal validation) validation and the external validation. 3. To assess the potential clinical utility the model using decision curve analysis.
 
 ### Installing and loading packages and import data
 
@@ -63,8 +61,7 @@ rdata$hr_status <- relevel(rdata$hr_status, ref = "ER and/or PR +")
 vdata$hr_status <- relevel(vdata$hr_status, ref = "ER and/or PR +")
 ```
 
-We loaded the development data (rdata) and the validation data (vdata).
-More details about development and validation data are provided in the manuscript.
+We loaded the development data (rdata) and the validation data (vdata). More details about development and validation data are provided in the manuscript.
 
 ### Descriptive statistics
 
@@ -86,7 +83,6 @@ label(cdata$hr_status) <- "Hormon receptor status"
 units(cdata$age) <- "years"
 units(cdata$size) <- "cm"
 ```
-
 
 ```{r tab1_bis}
 gtsummary::tbl_summary(
@@ -110,7 +106,9 @@ gtsummary::tbl_summary(
 First, we draw the cumulative incidence curves of breast cancer recurrence.
 
 <details>
-  <summary>Click to expand code</summary>
+
+<summary>Click to expand code</summary>
+
 ```{r, cuminc, fig.align='center', eval=FALSE, echo=TRUE}
 # Expand datasets -------------------------
 
@@ -179,12 +177,13 @@ par(oldpar)
 smfit_rdata <- summary(mfit_rdata, times = c(1, 2, 3, 4, 5))
 smfit_vdata <- summary(mfit_vdata, times = c(1, 2, 3, 4, 5))
 ```
+
 </details>
 
 ```{r, cuminc, fig.align='center', eval=TRUE}
 ```
 
-The R packages and functions `cmprsk::cuminc()` and `mstate::Cuminc()`are good and easy alternatives to estimate the cumulative incidence function. 
+The R packages and functions `cmprsk::cuminc()` and `mstate::Cuminc()`are good and easy alternatives to estimate the cumulative incidence function.
 
 ```{r, res_ci, fig.align='center'}
 res_ci <- cbind(
@@ -210,7 +209,9 @@ The 5-year cumulative incidence of breast cancer recurrence was 14% (95% CI: 11-
 Here we investigate the potential non-linear relation between continuous predictors (i.e. age and size) and the outcomes. We apply three-knot restricted cubic splines using `rms::rcs()` function (details are given in e.g. Frank Harrell's book 'Regression Model Strategies (second edition)', page 27. We assess the potential non-linearity graphically (plotting the two continuous predictors against the log relative hazards (XB or linear predictor) of both event types. Also, we compare the models with and without splines based on the AIC using `stats::AIC()`.
 
 <details>
-  <summary>Click to expand code</summary>
+
+<summary>Click to expand code</summary>
+
 ```{r,ff, warning=FALSE, fig.align='center', eval=FALSE, echo=TRUE}
 # Models without splines
 fit_csh <- CSC(
@@ -396,6 +397,7 @@ title("Non recurrence mortality")
 options(datadist = NULL)
 par(oldpar)
 ```
+
 </details>
 
 ```{r,ff, warning=FALSE, fig.align='center', eval=TRUE}
@@ -425,14 +427,16 @@ kable(res_AIC, row.names = TRUE) |>
   kable_styling("striped", position = "center")
 ```
 
-Both the graphical comparison and the AIC comparison suggested no relevant departure from linear relations between the continuous predictors (age and size) and the cause-specific hazards (recurrence and non-recurrence mortality).  
+Both the graphical comparison and the AIC comparison suggested no relevant departure from linear relations between the continuous predictors (age and size) and the cause-specific hazards (recurrence and non-recurrence mortality).
 
 ### 1.3 Checking proportional hazards assumption
 
 We now examine the fits further by checking the proportionality of the cause-specific hazards.
 
 <details>
-  <summary>Click to expand code</summary>
+
+<summary>Click to expand code</summary>
+
 ```{r,ph_csc1, message=FALSE, warning=FALSE,fig.align='center', echo=TRUE, eval=FALSE}
 zp_csc1 <- cox.zph(fit_csc1, transform = "identity")
 par(las = 1, xaxs = "i", yaxs = "i")
@@ -454,13 +458,16 @@ par(oldpar)
 kable(round(zp_csc1$table, 3)) |>
   kable_styling("striped", position = "center")
 ```
+
 </details>
 
 ```{r,ph_csc1, message=FALSE, warning=FALSE,fig.align='center', echo=FALSE, eval=TRUE}
 ```
 
 <details>
-  <summary>Click to expand code</summary>
+
+<summary>Click to expand code</summary>
+
 ```{r,ph_csc2, message=FALSE, warning=FALSE,fig.align='center',echo=TRUE,eval=FALSE}
 zp_csc2 <- cox.zph(fit_csc2, transform = "identity")
 par(las = 1, xaxs = "i", yaxs = "i")
@@ -488,6 +495,7 @@ par(oldpar)
 kable(round(zp_csc2$table, 3)) |>
   kable_styling("striped", position = "center")
 ```
+
 </details>
 
 ```{r,ph_csc2, message=FALSE, warning=FALSE,fig.align='center',echo=FALSE,eval=TRUE}
@@ -497,7 +505,7 @@ The statistical tests showed a potential violation of the proportional hazards a
 
 ### 1.4 Examine the fit of the models
 
-+ Cox proportional hazard model for recurrence
+-   Cox proportional hazard model for recurrence
 
 ```{r, summary_csc1, fig.align='center',warning=FALSE}
 dd <- datadist(rdata)
@@ -515,7 +523,7 @@ print(fit_csc1_cph)
 options(datadist = NULL)
 ```
 
-+ Cox proportional hazard model for non recurrence mortality
+-   Cox proportional hazard model for non recurrence mortality
 
 ```{r, summary_csc2, fig.align='center',warning=FALSE}
 dd <- datadist(rdata)
@@ -533,14 +541,16 @@ print(fit_csc2_cph)
 options(datadist = NULL)
 ```
 
-The coefficients of the models indicated that larger tumor size, positive nodal status and negative hormone receptor status status were associated with higher risk to develop a breast cancer recurrence, while older patients and larger tumors are associated with higher risk of non recurrence mortality. The associations were considered statistically significant at the usual alpha = 0.05.  
+The coefficients of the models indicated that larger tumor size, positive nodal status and negative hormone receptor status status were associated with higher risk to develop a breast cancer recurrence, while older patients and larger tumors are associated with higher risk of non recurrence mortality. The associations were considered statistically significant at the usual alpha = 0.05.
 
 ### 1.5 Plot of predictors vs estimated risk at 5 years in the validation data
 
 To get further insight into the effect of the covariates, we plot the covariate values observed in the validation set against the estimated absolute risk of breast cancer recurrence at 5 years. This gives an idea of the size of the effects.
 
 <details>
-  <summary>Click to expand code</summary>
+
+<summary>Click to expand code</summary>
+
 ```{r, plot_risk, fig.align='center',warning=FALSE, echo=TRUE, eval=FALSE}
 # Models -------------
 fit_csh <- CSC(
@@ -616,6 +626,7 @@ plot(
 )
 par(oldpar)
 ```
+
 </details>
 
 ```{r, plot_risk, fig.align='center',warning=FALSE, echo=FALSE, eval=TRUE}
@@ -623,33 +634,32 @@ par(oldpar)
 
 ## Goal 2 - Assessing performance of a competing risks prediction model
 
-Here we evaluate the performance of the prediction model in terms of calibration, discrimination and overall prediction error. 
-
+Here we evaluate the performance of the prediction model in terms of calibration, discrimination and overall prediction error.
 
 ### 2.1 Calibration
 
 We assess calibration by:
 
-- The calibration plot as a graphical representation of calibration using
- the pseudo observations and the subdistribution hazard approach
- - Numerical summaries of calibration:  
- - The observed vs expected ratio (O/E ratio) ;  
- - The squared bias, i.e., the average squared difference between primary event indicators and risk predictions;
- - The integrated Calibration Index (ICI), i.e., the average absolute difference between primary event indicators and risk predictions;  
- - E50, E90 and Emax denote the median, 90th percentile and the maximum of the absolute differences between primary event indicators and risk predictions;  
- - Calibration intercept/slope estimated using pseudo observations:  
- - If on average the risk estimates equal the primary event indicators, the calibration intercept will be zero. A negative calibration intercept indicates that the risk estimates are on average too high and a positive intercept indicates that the risk estimates are on average too low.   
- - A calibration slope between 0 and 1 indicates overfitting of the model, i.e., too extreme predictions, both on the low and on the high         end. A calibration slope >1 indicates predictions do not show enough variation.  
-      
+-   The calibration plot as a graphical representation of calibration using the pseudo observations and the subdistribution hazard approach
+-   Numerical summaries of calibration:\
+-   The observed vs expected ratio (O/E ratio) ;\
+-   The squared bias, i.e., the average squared difference between primary event indicators and risk predictions;
+-   The integrated Calibration Index (ICI), i.e., the average absolute difference between primary event indicators and risk predictions;\
+-   E50, E90 and Emax denote the median, 90th percentile and the maximum of the absolute differences between primary event indicators and risk predictions;\
+-   Calibration intercept/slope estimated using pseudo observations:\
+-   If on average the risk estimates equal the primary event indicators, the calibration intercept will be zero. A negative calibration intercept indicates that the risk estimates are on average too high and a positive intercept indicates that the risk estimates are on average too low.\
+-   A calibration slope between 0 and 1 indicates overfitting of the model, i.e., too extreme predictions, both on the low and on the high end. A calibration slope \>1 indicates predictions do not show enough variation.
+
 #### 2.1.1 Calibration using pseudo observations
 
-We calculate calibration plot and numerical summaries of calibration as
-ICI, E50, E90, Emax and root squared bias using pseudo value approach.
+We calculate calibration plot and numerical summaries of calibration as ICI, E50, E90, Emax and root squared bias using pseudo value approach.
 
 ##### 2.1.1.1 Calibration plot using pseudo observations
 
 <details>
-  <summary>Click to expand code</summary>
+
+<summary>Click to expand code</summary>
+
 ```{r, cal, fig.align='center',warning=FALSE,message=FALSE,eval=FALSE,echo=TRUE, fig.width=5, fig.height=5}
 # Models ----------
 fit_csh <- CSC(Hist(time, status_num) ~
@@ -702,6 +712,7 @@ calplot_pseudo <- plotCalibration(
 )
 title("Calibration plot using pseudo observations")
 ```
+
 </details>
 
 ```{r, cal, fig.align='center',warning=FALSE,message=FALSE,eval=TRUE,echo=FALSE, fig.width=5, fig.height=5}
@@ -712,7 +723,9 @@ Calibration plot suggests that the prediction model seems to overestimate the ob
 ##### 2.1.1.2 Numerical summaries of calibration using pseudo observations
 
 <details>
-  <summary>Click to expand code</summary>
+
+<summary>Click to expand code</summary>
+
 ```{r, num_cal_pseudo, fig.align='center',warning=FALSE,message=FALSE,echo=TRUE,eval=TRUE}
 
 # We can extract predicted and observed, observed will depend on degree of smoothing (bandwidth)
@@ -729,8 +742,8 @@ numsum_pseudo <- c(
   "Root squared bias" = sqrt(mean(diff_pseudo^2))
 )
 ```
-</details>
 
+</details>
 
 ```{r, res_cal_pseudo, fig.align='center',warning=FALSE,message=FALSE,echo=FALSE}
 # rootmeansquared, E50, E90, Emax, int, slope,
@@ -743,15 +756,19 @@ res_num <- round(res_num, k)
 kable(res_num) |>
   kable_styling("striped", position = "center")
 ```
+
 Numerical calibration measures identified overestimation of the risk especially in the higher values of the observed outcome proportion of the primary event.
 
 #### 2.1.2 Calibration using the subdistribution hazard approach
+
 Here we assess calibration using the subdistribution hazard approach (Austin et al.)
 
 ##### 2.1.2.1 Calibration plot using the subdistribution hazard approach
 
 <details>
-  <summary>Click to expand code</summary>
+
+<summary>Click to expand code</summary>
+
 ```{r, plot_sd, fig.align='center',warning=FALSE,message=FALSE,eval=FALSE,echo=TRUE, fig.width=5, fig.height=5}
 # Models ----------
 fit_csh <- CSC(Hist(time, status_num) ~
@@ -819,6 +836,7 @@ abline(a = 0, b = 1, lty = "dashed", col = "red")
 title("Calibration plot using subdistribution hazard approach", 
       cex.main = .90)
 ```
+
 </details>
 
 ```{r, plot_sd, fig.align='center',warning=FALSE,message=FALSE,echo=FALSE,eval=TRUE, fig.width=5, fig.height=5}
@@ -827,10 +845,13 @@ title("Calibration plot using subdistribution hazard approach",
 Calibration plot suggests that the prediction model seems to overestimate the observed outcome proportion of the primary event, especially at the lower and higher values of the estimated risk.
 
 ##### 2.1.2.2 Numerical summaries of calibration using the subdistribution hazard approach
+
 Here we assess calibration using the subdistribution hazard approach (Austin et al.)
 
 <details>
-  <summary>Click to expand code</summary>
+
+<summary>Click to expand code</summary>
+
 ```{r, num_cal_sd, fig.align='center',warning=FALSE,message=FALSE,eval=FALSE, echo=TRUE}
 # Numerical summary measures
 diff_fgr <- dat_fgr$pred - dat_fgr$obs
@@ -842,6 +863,7 @@ numsum_fgr <- c(
   "Root squared bias" = sqrt(mean(diff_fgr^2))
 )
 ```
+
 </details>
 
 ```{r, num_cal_sd, fig.align='center',warning=FALSE,message=FALSE,echo=FALSE,eval=TRUE, fig.width=5, fig.height=5}
@@ -857,12 +879,15 @@ res_num <- round(res_num, k)
 kable(res_num) |>
   kable_styling("striped", position = "center")
 ```
+
 Numerical calibration measures identified overestimation of the risk especially in the higher values of the observed outcome proportion of the primary event.
 
 #### 2.1.2.3 Calibration plot using pseudo-observations (LOESS smoothing)
 
 <details>
-  <summary>Click to expand code</summary>
+
+<summary>Click to expand code</summary>
+
 ```{r loess_pseudo, echo=TRUE, eval=FALSE, fig.width=5, fig.height=5, fig.align='center'}
 # Use pseudo-observations calculated by Score() (can alternatively use pseudo::pseudoci)
 pseudos <- data.frame(score_vdata$Calibration$plotframe)
@@ -917,16 +942,18 @@ segments(
   y1 = freqs_rescaled
 )
 ```
+
 </details>
 
 ```{r loess_pseudo, echo=FALSE, eval=TRUE, fig.width=5, fig.height=5, fig.align='center'}
 ```
 
-
 #### 2.1.3 Observed and Expected ratio
 
 <details>
-  <summary>Click to expand code</summary>
+
+<summary>Click to expand code</summary>
+
 ```{r, oe_ratio, fig.align='center',warning=FALSE,message=FALSE,echo=TRUE}
 
 # Models ----------
@@ -977,6 +1004,7 @@ OE_summary <- cbind(
 
 OE_summary <- round(OE_summary, k)
 ```
+
 </details>
 
 ```{r, res_OE, echo=FALSE}
@@ -990,9 +1018,10 @@ Observed and expected ratio shown slight overestimation of the risk predicted by
 
 #### 2.1.4 Calibration intercept and slope using pseudo observations
 
-
 <details>
-  <summary>Click to expand code</summary>
+
+<summary>Click to expand code</summary>
+
 ```{r, cal_intslope_pseudo, fig.align='center',warning=FALSE,message=FALSE, echo=TRUE}
 
 # Models ----------
@@ -1072,6 +1101,7 @@ vcov_mat <- fit_cal_slope$vbeta
 wald <- drop(betas %*% solve(vcov_mat) %*% betas)
 # pchisq(wald, df = 2, lower.tail = FALSE)
 ```
+
 </details>
 
 ```{r, res_cal_intslope, echo=FALSE}
@@ -1104,23 +1134,23 @@ kable(res_cal) |>
   kable_styling("striped", position = "center")
 ```
 
-The calibration intercept was estimated at -0.15 [95% CI -0.36 to 0.05] also pointing towards slight overestimation (though not statistically significant). This number for example means that for an estimated risk of 30%, the expected actual risk is 1-0.7^(exp(-0.15))=26%. The calibration slope was 1.22 [95% CI 0.84 to 1.60], which would indicate too homogeneous predictions but the wide confidence interval precludes any firm conclusions from it. The p-value for the joint test on calibration intercept and slope was 0.09.
+The calibration intercept was estimated at -0.15 [95% CI -0.36 to 0.05] also pointing towards slight overestimation (though not statistically significant). This number for example means that for an estimated risk of 30%, the expected actual risk is 1-0.7\^(exp(-0.15))=26%. The calibration slope was 1.22 [95% CI 0.84 to 1.60], which would indicate too homogeneous predictions but the wide confidence interval precludes any firm conclusions from it. The p-value for the joint test on calibration intercept and slope was 0.09.
 
 ### 2.2 Discrimination
 
 We here calculate
 
-+ The 5-year C-index. More details are in the main manuscript and its references;
-+ The 5-year time-dependent AUC. More details are in the manuscript and in its references;  
-  + Plot time-dependent AUC over the time;
-  
-+ Royston-Sauerbrei D statistic and R<sup>2</sup><sub>D</sub> as a measure of prognostic separation;  
+-   The 5-year C-index. More details are in the main manuscript and its references;
+-   The 5-year time-dependent AUC. More details are in the manuscript and in its references;
+    -   Plot time-dependent AUC over the time;
+-   Royston-Sauerbrei D statistic and R<sup>2</sup><sub>D</sub> as a measure of prognostic separation;
 
-  
 #### 2.2.1 C-index and time-dependent AUC
 
 <details>
-  <summary>Click to expand code</summary>
+
+<summary>Click to expand code</summary>
+
 ```{r, discrimination,warning=FALSE,message=FALSE,echo=TRUE}
 # Models
 fit_csh <- CSC(Hist(time, status_num) ~
@@ -1210,6 +1240,7 @@ score_vdata <- Score(
   plots = "calibration"
 )
 ```
+
 </details>
 
 ```{r, res_disc, fig.align='center',echo=FALSE}
@@ -1261,10 +1292,13 @@ kable(res_discr_csh) |>
 The time-dependent AUC at 5 years was 0.71 in the validation set.
 
 #### 2.2.2 Plot Area under the curve(s) over the time
-We plot the time-dependent AUCs over the follow-up time using development and validation data. 
+
+We plot the time-dependent AUCs over the follow-up time using development and validation data.
 
 <details>
-  <summary>Click to expand code</summary>
+
+<summary>Click to expand code</summary>
+
 ```{r, plot_AUCs, warning=FALSE,echo=TRUE, eval=FALSE}
 
 # Models --------------
@@ -1364,6 +1398,7 @@ lines(AUC_vdata$times,
 )
 title("Validation data", adj = 0)
 ```
+
 </details>
 
 ```{r, plot_AUCs, warning=FALSE,echo=FALSE, eval=TRUE}
@@ -1374,7 +1409,9 @@ title("Validation data", adj = 0)
 We calculate Royston-Sauerbrei D statistic and R<sup>2</sup><sub>D</sub> as a measure of explained variation
 
 <details>
-  <summary>Click to expand code</summary>
+
+<summary>Click to expand code</summary>
+
 ```{r, royston_R2D, fig.align='center', message=FALSE, warning=FALSE,echo=TRUE}
 # function to calculate D and R2D
 source(here::here("R/roystonD.R"))
@@ -1434,6 +1471,7 @@ res_vdata <- royston_R2D_cmprsk(
   status = vdata$status_num
 )
 ```
+
 </details>
 
 ```{r, royston_R2D, warning=FALSE,echo=FALSE, eval=TRUE}
@@ -1453,12 +1491,12 @@ kable(res_D) |>
 
 The R<sup>2</sup><sub>D</sub> showed how much of the observed variation in the outcome is explained by the prognostic model. The model explained 15% and 26% of the observed variation in the development and validation data, respectively.
 
-
 ### 2.3 Overall prediction error
 
 We calculate the Brier Score, and the scaled Brier scale (also indicated by scaled Brier score or IPA) and the corresponding confidence intervals.
 
 Some confidence intervals are calculated using the bootstrap percentile method.
+
 ```{r, bootstrap,warning=FALSE}
 # Bootstrapping data
 set.seed(20201214)
@@ -1468,7 +1506,9 @@ vboot <- bootstraps(vdata, times = B)
 ```
 
 <details>
-  <summary>Click to expand code</summary>
+
+<summary>Click to expand code</summary>
+
 ```{r, overall, warning=FALSE,  fig.align='center', message=FALSE, echo=TRUE}
 
 # Models -------------------
@@ -1554,6 +1594,7 @@ vboot <- vboot |> mutate(
   })
 )
 ```
+
 </details>
 
 ```{r, overall, warning=FALSE,echo=FALSE, eval=TRUE}
@@ -1604,12 +1645,14 @@ kable(res_ov) |>
 
 Note: unexpectedly, the point estimate for the Brier score is lower (thus better) and for the scaled Brier score is higher (thus better) in the validation data compared to the development data.
 
-## Goal 3 -  Clinical utility
+## Goal 3 - Clinical utility
 
 Clinical utility can be measured by the net benefit and plotted in a decision curve. Details about net benefit, decision curve calculation and interpretation are provided in the manuscript (see also the appendix) and its references.
 
 <details>
-  <summary>Click to expand code</summary>
+
+<summary>Click to expand code</summary>
+
 ```{r, dca, message=FALSE,warning=FALSE, fig.align='center',echo=TRUE,eval=FALSE}
 # Run the stdca function to calculate the net benefit and the elements needed to develop decision curve analysis
 source(here::here("R/stdca.R"))
@@ -1772,12 +1815,13 @@ mtext("Harm to benefit ratio", 1, line = 5)
 title("Validation data")
 par(oldpar)
 ```
+
 </details>
 
 ```{r, dca, message=FALSE,warning=FALSE, fig.align='center',echo=FALSE,eval=TRUE}
 ```
 
-If we choose a threshold of 20\%, the model had a net benefit of 0.011 in the development data. In the validation data, the model had a net benefit of 0.014 choosing a threshold of 20\%. 
+If we choose a threshold of 20%, the model had a net benefit of 0.011 in the development data. In the validation data, the model had a net benefit of 0.014 choosing a threshold of 20%.
 
 ## Reproducibility ticket
 

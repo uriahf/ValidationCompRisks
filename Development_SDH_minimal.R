@@ -1,12 +1,15 @@
 # Load libraries and data -------------------------------------------------
 
-
 # General packages
 pkgs <- c("survival", "mstate", "rms", "riskRegression")
-vapply(pkgs, function(pkg) {
-  if (!require(pkg, character.only = TRUE)) install.packages(pkg)
-  require(pkg, character.only = TRUE, quietly = TRUE)
-}, FUN.VALUE = logical(length = 1L))
+vapply(
+  pkgs,
+  function(pkg) {
+    if (!require(pkg, character.only = TRUE)) install.packages(pkg)
+    require(pkg, character.only = TRUE, quietly = TRUE)
+  },
+  FUN.VALUE = logical(length = 1L)
+)
 
 
 # Load datasets
@@ -30,23 +33,28 @@ rdata.w1 <- rdata.w[rdata.w$failcode == primary_event, ]
 
 # Cumulative incidence function ------------
 
-
 mfit_rdata <- survfit(
   Surv(Tstart, Tstop, status == 1) ~ 1,
-  data = rdata.w1, weights = weight.cens
+  data = rdata.w1,
+  weights = weight.cens
 )
 
 par(xaxs = "i", yaxs = "i", las = 1)
-plot(mfit_rdata,
-     col = 1, lwd = 2,
-     xlab = "Years since BC diagnosis",
-     ylab = "Cumulative incidence", bty = "n",
-     ylim = c(0, 0.25), xlim = c(0, 5), fun = "event", conf.int = TRUE
+plot(
+  mfit_rdata,
+  col = 1,
+  lwd = 2,
+  xlab = "Years since BC diagnosis",
+  ylab = "Cumulative incidence",
+  bty = "n",
+  ylim = c(0, 0.25),
+  xlim = c(0, 5),
+  fun = "event",
+  conf.int = TRUE
 )
 title("Development data")
 
 # Annual cumulative incidences -------------------
-
 
 smfit_rdata <- summary(mfit_rdata, times = c(1, 2, 3, 4, 5))
 
@@ -60,8 +68,6 @@ CIF
 
 
 ### Check non-linearity of continuous predictors ----------------
-
-
 
 # Defining knots of the restricted cubic splines ------------------
 # Extract knots position of the restricted cubic spline based on the
@@ -84,14 +90,14 @@ rdata$size3 <- rcs3_size
 # FG model
 dd <- datadist(rdata)
 options(datadist = "dd")
-fit_fg_rcs <- cph(Surv(Tstart, Tstop, status == 1) ~ 
-                    rcs(age, pos_knots_age) + rcs(size, pos_knots_size) +
-                    ncat + hr_status, 
-                  weights = weight.cens,
-                  x = T, 
-                  y = T, 
-                  surv = T, 
-                  data = rdata.w1
+fit_fg_rcs <- cph(
+  Surv(Tstart, Tstop, status == 1) ~
+    rcs(age, pos_knots_age) + rcs(size, pos_knots_size) + ncat + hr_status,
+  weights = weight.cens,
+  x = T,
+  y = T,
+  surv = T,
+  data = rdata.w1
 )
 P_fg_age_rcs <- Predict(fit_fg_rcs, "age")
 P_fg_size_rcs <- Predict(fit_fg_rcs, "size")
@@ -104,28 +110,26 @@ options(datadist = NULL)
 # the continuous predictors
 dd <- datadist(rdata, adjto.cat = "first")
 options(datadist = "dd")
-fit_fg <- cph(Surv(Tstart, Tstop, status == 1) ~ age + size +
-                ncat + hr_status,
-              weights = weight.cens,
-              x = T, 
-              y = T, 
-              surv = T, 
-              data = rdata.w1
+fit_fg <- cph(
+  Surv(Tstart, Tstop, status == 1) ~ age + size + ncat + hr_status,
+  weights = weight.cens,
+  x = T,
+  y = T,
+  surv = T,
+  data = rdata.w1
 )
 options(datadist = NULL)
 
 
-res_AIC <- c("Without splines" = AIC(fit_fg), 
-             "With splines" = AIC(fit_fg_rcs))
+res_AIC <- c("Without splines" = AIC(fit_fg), "With splines" = AIC(fit_fg_rcs))
 res_AIC
 
-# The AIC and the graphical check suggested 
-# a potential linear relation 
-# between the continuous predictors (age and size) 
+# The AIC and the graphical check suggested
+# a potential linear relation
+# between the continuous predictors (age and size)
 # and the event of interest (breast cancer recurrence).
 
 ### Checking proportional subdistribution hazards assumption ---------
-
 
 zp_fg <- cox.zph(fit_fg, transform = "identity")
 
@@ -135,41 +139,28 @@ oldpar <- par(mfrow = c(2, 2), mar = c(2, 2, 3, 2))
 
 sub_title <- c("Age", "Size", "Lymph node status", "HR status")
 for (i in 1:4) {
-  plot(zp_fg[i], 
-       resid = F, 
-       bty = "n", 
-       xlim = c(0, 5))
+  plot(zp_fg[i], resid = F, bty = "n", xlim = c(0, 5))
   abline(0, 0, lty = 3)
   title(sub_title[i])
 }
-mtext("Fine and Gray", 
-      side = 3, 
-      line = -1, 
-      outer = TRUE, 
-      font = 2)
+mtext("Fine and Gray", side = 3, line = -1, outer = TRUE, font = 2)
 par(oldpar)
 
 zp_fg$table
 
 
-# The statistical tests showed 
-# a potential violation of the proportional hazards assumption 
+# The statistical tests showed
+# a potential violation of the proportional hazards assumption
 # for size of breast cancer.
 # For simplicity we ignore this violation in the remainder.
 
-
 ### Model development - fit the risk prediction models ---------------------
 
-
-
-fit_fg <- coxph(Surv(Tstart, Tstop, status == 1) ~
-                age + size + ncat + hr_status, 
-                  weights = weight.cens,
-                  x = T, 
-                  y = T, 
-                  data = rdata.w1
+fit_fg <- coxph(
+  Surv(Tstart, Tstop, status == 1) ~ age + size + ncat + hr_status,
+  weights = weight.cens,
+  x = T,
+  y = T,
+  data = rdata.w1
 )
 # NOTE: rms:cph() can also be used as before
-
-
-

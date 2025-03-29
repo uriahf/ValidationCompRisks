@@ -1,0 +1,41 @@
+---
+title: "decision_curve_competing"
+output: 
+  html_document:
+    toc: true
+params:
+  probs: NA
+  reals: NA
+  times: NA
+  fixed_horizon_times: NA
+  stratified_by: NA
+  by: NA
+---
+
+```{r setup, include=TRUE}
+
+library(rtichoke)
+
+crosstalk::bscols(widths = c(6, 6),
+create_decision_curve(
+  probs = params$probs,
+  reals = params$reals, 
+  size = 400
+)|> 
+  htmlwidgets::onRender("
+    function(el) { 
+      el.on('plotly_hover', function(d) { 
+        console.log('Hover: ', d); 
+      });
+      el.on('plotly_click', function(d) { 
+        console.log('Click: ', d);
+      });
+      el.on('plotly_selected', function(d) { 
+        console.log('Select: ', d); 
+      });
+    }
+  ")) 
+
+```
+
+
