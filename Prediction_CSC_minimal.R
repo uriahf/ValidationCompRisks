@@ -32,6 +32,7 @@ score_vdata <- Score(
   list("csh_validation" = fit_csh),
   formula = Hist(time, status_num) ~ 1, 
   cens.model = "km", 
+  cens.method = c("ipcw", "pseudo"),
   data = vdata, 
   conf.int = TRUE, 
   times = horizon,
@@ -58,6 +59,7 @@ calplot_pseudo <- plotCalibration(
   brier.in.legend = FALSE,
   auc.in.legend = FALSE, 
   cens.method = "pseudo",
+  pseudo = TRUE,
   bandwidth = 0.05, # leave as NULL for default choice of smoothing
   cex = 1, 
   round = FALSE, # Important, keeps all unique risk estimates rather than rounding 
@@ -69,7 +71,7 @@ calplot_pseudo <- plotCalibration(
 )
 
 # We can extract predicted and observed, observed will depend on degree of smoothing (bandwidth)
-dat_pseudo <- calplot_pseudo$plotFrames$csh_validation
+dat_pseudo <- calplot_pseudo$plotFrames[[1]]
 
 
 # Calibration plot (pseudo-obs approach, loess smoothing) -----------------
@@ -246,7 +248,7 @@ pseudos$cll_pred <- log(-log(1 - pseudos$risk))
 fit_cal_int <- geese(
   pseudovalue ~ offset(cll_pred), 
   data = pseudos,
-  id = ID, 
+  id = riskRegression_ID, 
   scale.fix = TRUE, 
   family = gaussian,
   mean.link = "cloglog",
@@ -258,7 +260,7 @@ fit_cal_int <- geese(
 fit_cal_slope <- geese(
   pseudovalue ~ offset(cll_pred) + cll_pred, 
   data = pseudos,
-  id = ID, 
+  id = riskRegression_ID, 
   scale.fix = TRUE, 
   family = gaussian,
   mean.link = "cloglog",
@@ -326,7 +328,7 @@ score_vdata$Brier$score
 
 
 # 1. Set grid of thresholds
-thresholds <- seq(0, 0.6, by = 0.01)
+thresholds <- seq(0, 0.45, by = 0.01)
 
 # 2. Calculate Aalen-Johansen estimator for all patients exceeding the threshold (i.e. treat-all)
 survfit_all <- summary(

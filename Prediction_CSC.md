@@ -2,86 +2,54 @@ External validation of the performance of competing risks prediction
 models: a guide through modern methods - Cause specific hazard models
 ================
 
-- <a href="#steps" id="toc-steps">Steps</a>
-  - <a href="#installing-and-loading-packages-and-import-data"
-    id="toc-installing-and-loading-packages-and-import-data">Installing and
-    loading packages and import data</a>
-  - <a href="#descriptive-statistics"
-    id="toc-descriptive-statistics">Descriptive statistics</a>
-- <a href="#goal-1---develop-a-competing-risks-prediction-model"
-  id="toc-goal-1---develop-a-competing-risks-prediction-model">Goal 1 -
-  develop a competing risks prediction model</a>
-  - <a href="#11-cumulative-incidence-curves"
-    id="toc-11-cumulative-incidence-curves">1.1 Cumulative incidence
-    curves</a>
-  - <a href="#12-check-non-linearity-of-continuous-predictors"
-    id="toc-12-check-non-linearity-of-continuous-predictors">1.2 Check
-    non-linearity of continuous predictors</a>
-  - <a href="#13-checking-proportional-hazards-assumption"
-    id="toc-13-checking-proportional-hazards-assumption">1.3 Checking
-    proportional hazards assumption</a>
-  - <a href="#14-examine-the-fit-of-the-models"
-    id="toc-14-examine-the-fit-of-the-models">1.4 Examine the fit of the
-    models</a>
-  - <a
-    href="#15-plot-of-predictors-vs-estimated-risk-at-5-years-in-the-validation-data"
-    id="toc-15-plot-of-predictors-vs-estimated-risk-at-5-years-in-the-validation-data">1.5
-    Plot of predictors vs estimated risk at 5 years in the validation
-    data</a>
-- <a
-  href="#goal-2---assessing-performance-of-a-competing-risks-prediction-model"
-  id="toc-goal-2---assessing-performance-of-a-competing-risks-prediction-model">Goal
-  2 - Assessing performance of a competing risks prediction model</a>
-  - <a href="#21-calibration" id="toc-21-calibration">2.1 Calibration</a>
-    - <a href="#211-calibration-using-pseudo-observations"
-      id="toc-211-calibration-using-pseudo-observations">2.1.1 Calibration
-      using pseudo observations</a>
-      - <a href="#2111-calibration-plot-using-pseudo-observations"
-        id="toc-2111-calibration-plot-using-pseudo-observations">2.1.1.1
-        Calibration plot using pseudo observations</a>
-      - <a
-        href="#2112-numerical-summaries-of-calibration-using-pseudo-observations"
-        id="toc-2112-numerical-summaries-of-calibration-using-pseudo-observations">2.1.1.2
-        Numerical summaries of calibration using pseudo observations</a>
-    - <a href="#212-calibration-using-the-subdistribution-hazard-approach"
-      id="toc-212-calibration-using-the-subdistribution-hazard-approach">2.1.2
-      Calibration using the subdistribution hazard approach</a>
-      - <a
-        href="#2121-calibration-plot-using-the-subdistribution-hazard-approach"
-        id="toc-2121-calibration-plot-using-the-subdistribution-hazard-approach">2.1.2.1
-        Calibration plot using the subdistribution hazard approach</a>
-      - <a
-        href="#2122-numerical-summaries-of-calibration-using-the-subdistribution-hazard-approach"
-        id="toc-2122-numerical-summaries-of-calibration-using-the-subdistribution-hazard-approach">2.1.2.2
-        Numerical summaries of calibration using the subdistribution hazard
-        approach</a>
-    - <a
-      href="#2123-calibration-plot-using-pseudo-observations-loess-smoothing"
-      id="toc-2123-calibration-plot-using-pseudo-observations-loess-smoothing">2.1.2.3
-      Calibration plot using pseudo-observations (LOESS smoothing)</a>
-    - <a href="#213-observed-and-expected-ratio"
-      id="toc-213-observed-and-expected-ratio">2.1.3 Observed and Expected
-      ratio</a>
-    - <a href="#214-calibration-intercept-and-slope-using-pseudo-observations"
-      id="toc-214-calibration-intercept-and-slope-using-pseudo-observations">2.1.4
-      Calibration intercept and slope using pseudo observations</a>
-  - <a href="#22-discrimination" id="toc-22-discrimination">2.2
-    Discrimination</a>
-    - <a href="#221-c-index-and-time-dependent-auc"
-      id="toc-221-c-index-and-time-dependent-auc">2.2.1 C-index and
-      time-dependent AUC</a>
-    - <a href="#222-plot-area-under-the-curves-over-the-time"
-      id="toc-222-plot-area-under-the-curves-over-the-time">2.2.2 Plot Area
-      under the curve(s) over the time</a>
-    - <a href="#223-royston-sauerbrei-d-statistic-and-r2d"
-      id="toc-223-royston-sauerbrei-d-statistic-and-r2d">2.2.3
-      Royston-Sauerbrei D statistic and R<sup>2</sup><sub>D</sub></a>
-  - <a href="#23-overall-prediction-error"
-    id="toc-23-overall-prediction-error">2.3 Overall prediction error</a>
-- <a href="#goal-3---clinical-utility"
-  id="toc-goal-3---clinical-utility">Goal 3 - Clinical utility</a>
-- <a href="#reproducibility-ticket"
-  id="toc-reproducibility-ticket">Reproducibility ticket</a>
+- [Steps](#steps)
+  - [Installing and loading packages and import
+    data](#installing-and-loading-packages-and-import-data)
+  - [Descriptive statistics](#descriptive-statistics)
+- [Goal 1 - develop a competing risks prediction
+  model](#goal-1---develop-a-competing-risks-prediction-model)
+  - [1.1 Cumulative incidence curves](#11-cumulative-incidence-curves)
+  - [1.2 Check non-linearity of continuous
+    predictors](#12-check-non-linearity-of-continuous-predictors)
+  - [1.3 Checking proportional hazards
+    assumption](#13-checking-proportional-hazards-assumption)
+  - [1.4 Examine the fit of the
+    models](#14-examine-the-fit-of-the-models)
+  - [1.5 Plot of predictors vs estimated risk at 5 years in the
+    validation
+    data](#15-plot-of-predictors-vs-estimated-risk-at-5-years-in-the-validation-data)
+- [Goal 2 - Assessing performance of a competing risks prediction
+  model](#goal-2---assessing-performance-of-a-competing-risks-prediction-model)
+  - [2.1 Calibration](#21-calibration)
+    - [2.1.1 Calibration using pseudo
+      observations](#211-calibration-using-pseudo-observations)
+      - [2.1.1.1 Calibration plot using pseudo
+        observations](#2111-calibration-plot-using-pseudo-observations)
+      - [2.1.1.2 Numerical summaries of calibration using pseudo
+        observations](#2112-numerical-summaries-of-calibration-using-pseudo-observations)
+    - [2.1.2 Calibration using the subdistribution hazard
+      approach](#212-calibration-using-the-subdistribution-hazard-approach)
+      - [2.1.2.1 Calibration plot using the subdistribution hazard
+        approach](#2121-calibration-plot-using-the-subdistribution-hazard-approach)
+      - [2.1.2.2 Numerical summaries of calibration using the
+        subdistribution hazard
+        approach](#2122-numerical-summaries-of-calibration-using-the-subdistribution-hazard-approach)
+    - [2.1.2.3 Calibration plot using pseudo-observations (LOESS
+      smoothing)](#2123-calibration-plot-using-pseudo-observations-loess-smoothing)
+    - [2.1.3 Observed and Expected
+      ratio](#213-observed-and-expected-ratio)
+    - [2.1.4 Calibration intercept and slope using pseudo
+      observations](#214-calibration-intercept-and-slope-using-pseudo-observations)
+  - [2.2 Discrimination](#22-discrimination)
+    - [2.2.1 C-index and time-dependent
+      AUC](#221-c-index-and-time-dependent-auc)
+    - [2.2.2 Plot Area under the curve(s) over the
+      time](#222-plot-area-under-the-curves-over-the-time)
+    - [2.2.3 Royston-Sauerbrei D statistic and
+      R<sup>2</sup><sub>D</sub>](#223-royston-sauerbrei-d-statistic-and-r2d)
+  - [2.3 Overall prediction error](#23-overall-prediction-error)
+- [Goal 3 - Clinical utility](#goal-3---clinical-utility)
+- [Reproducibility ticket](#reproducibility-ticket)
 
 ## Steps
 
@@ -126,11 +94,11 @@ pacman::p_load(
 )
 
 # Import data ------------------
-rdata <- readRDS(here::here("Data/rdata.rds"))
-vdata <- readRDS(here::here("Data/vdata.rds"))
+rdata <- base::readRDS(here::here("Data/rdata.rds"))
+vdata <- base::readRDS(here::here("Data/vdata.rds"))
 
-rdata$hr_status <- relevel(rdata$hr_status, ref = "ER and/or PR +")
-vdata$hr_status <- relevel(vdata$hr_status, ref = "ER and/or PR +")
+rdata$hr_status <- stats::relevel(rdata$hr_status, ref = "ER and/or PR +")
+vdata$hr_status <- stats::relevel(vdata$hr_status, ref = "ER and/or PR +")
 ```
 
 We loaded the development data (rdata) and the validation data (vdata).
@@ -304,40 +272,51 @@ Click to expand code
 # Expand datasets -------------------------
 
 # Expand data to prepare for fitting the model
-rdata.w <- crprep(
+rdata.w <- mstate::crprep(
   Tstop = "time",
   status = "status_num",
   trans = c(1, 2),
   id = "id",
   keep = c("age", "size", "ncat", "hr_status"),
-  data = rdata
-)
+  data = rdata)
+
 # Save extended data with weights for recurrence (failcode=1)
 # and non recurrence mortality (failcode=2)
-rdata.w1 <- rdata.w |> filter(failcode == 1)
-rdata.w2 <- rdata.w |> filter(failcode == 2)
-vdata.w <- crprep(
+rdata.w1 <- 
+  rdata.w %>% 
+  dplyr::filter(failcode == 1)
+
+rdata.w2 <- 
+  rdata.w %>% 
+  dplyr::filter(failcode == 2)
+
+vdata.w <- mstate::crprep(
   Tstop = "time",
   status = "status_num",
   trans = c(1, 2),
   id = "id",
   keep = c("age", "size", "ncat", "hr_status"),
-  data = vdata
-)
-vdata.w1 <- vdata.w |> filter(failcode == 1)
-vdata.w2 <- vdata.w |> filter(failcode == 2)
+  data = vdata)
+
+vdata.w1 <- 
+  vdata.w %>% 
+  dplyr::filter(failcode == 1)
+
+vdata.w2 <- 
+  vdata.w %>% 
+  dplyr::filter(failcode == 2)
 
 # Development set --------
-mfit_rdata <- survfit(
+mfit_rdata <- survival::survfit(
   Surv(Tstart, Tstop, status == 1) ~ 1,
   data = rdata.w1, 
-  weights = weight.cens
-)
-mfit_vdata <- survfit(
+  weights = weight.cens)
+
+mfit_vdata <- survival::survfit(
   Surv(Tstart, Tstop, status == 1) ~ 1,
   data = vdata.w1, 
-  weights = weight.cens
-)
+  weights = weight.cens)
+
 par(xaxs = "i", yaxs = "i", las = 1)
 oldpar <- par(mfrow = c(1, 2), mar = c(5, 5, 1, 1))
 plot(
@@ -365,8 +344,11 @@ title("Validation data")
 par(oldpar)
 
 # Cumulative incidences
-smfit_rdata <- summary(mfit_rdata, times = c(1, 2, 3, 4, 5))
-smfit_vdata <- summary(mfit_vdata, times = c(1, 2, 3, 4, 5))
+smfit_rdata <- summary(mfit_rdata, 
+                       times = c(1, 2, 3, 4, 5))
+
+smfit_vdata <- summary(mfit_vdata, 
+                       times = c(1, 2, 3, 4, 5))
 ```
 
 </details>
@@ -564,7 +546,7 @@ Click to expand code
 
 ``` r
 # Models without splines
-fit_csh <- CSC(
+fit_csh <- riskRegression::CSC(
   Hist(time, status_num) ~ age + size + ncat + hr_status,
   data = rdata,
   fitter = "cph"
@@ -574,12 +556,16 @@ fit_csc1 <- fit_csh$models$`Cause 1`
 fit_csc2 <- fit_csh$models$`Cause 2`
 
 # Models with splines
-dd <- datadist(rdata)
+dd <- rms::datadist(rdata)
 options(datadist = "dd")
 
 # Recurrence
-fit_csc1_rcs <- cph(
-  Surv(time, status_num == 1) ~ rcs(age, 3) + rcs(size, 3) + ncat + hr_status,
+fit_csc1_rcs <- rms::cph(
+  Surv(time, status_num == 1) ~ 
+    rcs(age, 3) + 
+    rcs(size, 3) + 
+    ncat + 
+    hr_status,
   x = T,
   y = T,
   surv = T,
@@ -588,14 +574,20 @@ fit_csc1_rcs <- cph(
 # print(fit_csc1_rcs)
 # print(summary(fit_csc1_rcs))
 # print(anova(fit_csc1_rcs))
-P_csc1_age_rcs <- Predict(fit_csc1_rcs, "age")
-P_csc1_size_rcs <- Predict(fit_csc1_rcs, "size")
+P_csc1_age_rcs <- rms::Predict(fit_csc1_rcs, "age")
+P_csc1_size_rcs <- rms::Predict(fit_csc1_rcs, "size")
 options(datadist = NULL)
+
+
 # Non-recurrence mortality
 dd <- datadist(rdata)
 options(datadist = "dd")
-fit_csc2_rcs <- cph(
-  Surv(time, status_num == 2) ~ rcs(age, 3) + rcs(size, 3) + ncat + hr_status,
+fit_csc2_rcs <- rms::cph(
+  Surv(time, status_num == 2) ~ 
+    rcs(age, 3) + 
+    rcs(size, 3) + 
+    ncat + 
+    hr_status,
   x = T,
   y = T,
   surv = T,
@@ -604,11 +596,15 @@ fit_csc2_rcs <- cph(
 # print(fit_csc2_rcs)
 # print(summary(fit_csc2_rcs))
 # print(anova(fit_csc2_rcs))
-P_csc2_age_rcs <- Predict(fit_csc2_rcs, "age")
-P_csc2_size_rcs <- Predict(fit_csc2_rcs, "size")
+P_csc2_age_rcs <- rms::Predict(fit_csc2_rcs, "age")
+P_csc2_size_rcs <- rms::Predict(fit_csc2_rcs, "size")
+
 options(datadist = NULL)
-oldpar <- par(mfrow = c(2, 2), mar = c(5, 5, 1, 1))
-par(xaxs = "i", yaxs = "i", las = 1)
+oldpar <- par(mfrow = c(2, 2),
+              mar = c(5, 5, 1, 1))
+par(xaxs = "i", 
+    yaxs = "i", 
+    las = 1)
 plot(
   P_csc1_age_rcs$age,
   P_csc1_age_rcs$yhat,
@@ -622,8 +618,10 @@ plot(
   xlim = c(65, 95)
 )
 polygon(
-  c(P_csc1_age_rcs$age, rev(P_csc1_age_rcs$age)),
-  c(P_csc1_age_rcs$lower, rev(P_csc1_age_rcs$upper)),
+  c(P_csc1_age_rcs$age, 
+    rev(P_csc1_age_rcs$age)),
+  c(P_csc1_age_rcs$lower, 
+    rev(P_csc1_age_rcs$upper)),
   col = "grey75",
   border = FALSE
 )
@@ -642,7 +640,9 @@ plot(
 )
 title("Recurrence")
 # CSC 1- size
-par(xaxs = "i", yaxs = "i", las = 1)
+par(xaxs = "i", 
+    yaxs = "i", 
+    las = 1)
 plot(
   P_csc1_size_rcs$size,
   P_csc1_size_rcs$yhat,
@@ -656,8 +656,10 @@ plot(
   xlim = c(0, 7)
 )
 polygon(
-  c(P_csc1_size_rcs$size, rev(P_csc1_size_rcs$size)),
-  c(P_csc1_size_rcs$lower, rev(P_csc1_size_rcs$upper)),
+  c(P_csc1_size_rcs$size, 
+    rev(P_csc1_size_rcs$size)),
+  c(P_csc1_size_rcs$lower, 
+    rev(P_csc1_size_rcs$upper)),
   col = "grey75",
   border = FALSE
 )
@@ -675,7 +677,9 @@ plot(
   xlim = c(0, 7)
 )
 title("Recurrence")
-par(xaxs = "i", yaxs = "i", las = 1)
+par(xaxs = "i", 
+    yaxs = "i", 
+    las = 1)
 options(datadist = NULL)
 # CSC 2- age
 plot(
@@ -691,8 +695,10 @@ plot(
   xlim = c(65, 95)
 )
 polygon(
-  c(P_csc2_age_rcs$age, rev(P_csc2_age_rcs$age)),
-  c(P_csc2_age_rcs$lower, rev(P_csc2_age_rcs$upper)),
+  c(P_csc2_age_rcs$age, 
+    rev(P_csc2_age_rcs$age)),
+  c(P_csc2_age_rcs$lower, 
+    rev(P_csc2_age_rcs$upper)),
   col = "grey75",
   border = FALSE
 )
@@ -725,8 +731,10 @@ plot(
   xlim = c(0, 7)
 )
 polygon(
-  c(P_csc2_size_rcs$size, rev(P_csc2_size_rcs$size)),
-  c(P_csc2_size_rcs$lower, rev(P_csc2_size_rcs$upper)),
+  c(P_csc2_size_rcs$size, 
+    rev(P_csc2_size_rcs$size)),
+  c(P_csc2_size_rcs$lower, 
+    rev(P_csc2_size_rcs$upper)),
   col = "grey75",
   border = FALSE
 )
@@ -807,25 +815,36 @@ Click to expand code
 </summary>
 
 ``` r
-zp_csc1 <- cox.zph(fit_csc1, transform = "identity")
-par(las = 1, xaxs = "i", yaxs = "i")
+zp_csc1 <- survival::cox.zph(fit_csc1, 
+                             transform = "identity")
+par(las = 1, 
+    xaxs = "i", 
+    yaxs = "i")
 # c(bottom, left, top, right)
-oldpar <- par(mfrow = c(2, 2), mar = c(5, 6.1, 3.1, 1))
-sub_title <- c("Age", "Size", "Lymph node status", "HR status")
+oldpar <- par(mfrow = c(2, 2), 
+              mar = c(5, 6.1, 3.1, 1))
+sub_title <- c("Age", 
+               "Size", 
+               "Lymph node status",
+               "HR status")
 for (i in 1:4) {
   plot(
     zp_csc1[i],
     resid = F,
     bty = "n",
-    xlim = c(0, 5)
-  )
+    xlim = c(0, 5))
   abline(0, 0, lty = 3)
   title(sub_title[i])
 }
-mtext("Recurrence", side = 3, line = -1, outer = TRUE, font = 2)
+mtext("Recurrence", 
+      side = 3, 
+      line = -1, 
+      outer = TRUE, 
+      font = 2)
 par(oldpar)
-kable(round(zp_csc1$table, 3)) |>
-  kable_styling("striped", position = "center")
+knitr::kable(round(zp_csc1$table, 3)) %>%
+  kableExtra::kable_styling("striped", 
+                            position = "center")
 ```
 
 </details>
@@ -925,11 +944,18 @@ Click to expand code
 </summary>
 
 ``` r
-zp_csc2 <- cox.zph(fit_csc2, transform = "identity")
-par(las = 1, xaxs = "i", yaxs = "i")
+zp_csc2 <- survival::cox.zph(fit_csc2, 
+                             transform = "identity")
+par(las = 1, 
+    xaxs = "i", 
+    yaxs = "i")
 # c(bottom, left, top, right)
-oldpar <- par(mfrow = c(2, 2), mar = c(5, 6.1, 3.1, 1))
-sub_title <- c("Age", "Size", "Lymph node status", "HR status")
+oldpar <- par(mfrow = c(2, 2), 
+              mar = c(5, 6.1, 3.1, 1))
+sub_title <- c("Age", 
+               "Size", 
+               "Lymph node status", 
+               "HR status")
 for (i in 1:4) {
   plot(
     zp_csc2[i],
@@ -948,8 +974,9 @@ mtext(
   font = 2
 )
 par(oldpar)
-kable(round(zp_csc2$table, 3)) |>
-  kable_styling("striped", position = "center")
+knitr::kable(round(zp_csc2$table, 3)) %>%
+  kableExtra::kable_styling("striped", 
+                            position = "center")
 ```
 
 </details>
@@ -1052,14 +1079,12 @@ mortality. For simplicity we ignore this violation in the remainder.
 
 - Cox proportional hazard model for recurrence
 
- <strong>Cox Proportional Hazards Model</strong>
- 
- <pre>
- cph(formula = Surv(time, status_num == 1) ~ age + size + ncat + 
-     hr_status, data = rdata, x = T, y = T, surv = T)
- </pre>
- 
- <table class='gmisc_table' style='border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;' >
+<p><strong>Cox Proportional Hazards Model</strong></p>
+&#10;<pre>
+rms::cph(formula = Surv(time, status_num == 1) ~ age + size + 
+    ncat + hr_status, data = rdata, x = T, y = T, surv = T)
+</pre>
+&#10;<table class='gmisc_table' style='border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;' >
 <thead>
 <tr>
 <th style='font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; border-left: 1px solid black; border-right: 1px solid black; text-align: center;'></th>
@@ -1095,11 +1120,10 @@ mortality. For simplicity we ignore this violation in the remainder.
 </tr>
 </tbody>
 </table>
-
- 
- <table class='gmisc_table' style='border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;' >
+&#10;
+<table class='gmisc_table' style='border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;' >
 <thead>
-<tr><th style='border-bottom: 1px solid grey; font-weight: 900; border-top: 2px solid grey; min-width: 7em; text-align: center;'></th>
+<tr><th style='border-bottom: 1px solid grey; border-top: 2px solid grey;'></th>
 <th style='font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;'>β</th>
 <th style='font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;'>S.E.</th>
 <th style='font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;'>Wald <i>Z</i></th>
@@ -1140,14 +1164,12 @@ mortality. For simplicity we ignore this violation in the remainder.
 
 - Cox proportional hazard model for non recurrence mortality
 
- <strong>Cox Proportional Hazards Model</strong>
- 
- <pre>
- cph(formula = Surv(time, status_num == 2) ~ age + size + ncat + 
-     hr_status, data = rdata, x = T, y = T, surv = T)
- </pre>
- 
- <table class='gmisc_table' style='border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;' >
+<p><strong>Cox Proportional Hazards Model</strong></p>
+&#10;<pre>
+rms::cph(formula = Surv(time, status_num == 2) ~ age + size + 
+    ncat + hr_status, data = rdata, x = T, y = T, surv = T)
+</pre>
+&#10;<table class='gmisc_table' style='border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;' >
 <thead>
 <tr>
 <th style='font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; border-left: 1px solid black; border-right: 1px solid black; text-align: center;'></th>
@@ -1183,11 +1205,10 @@ mortality. For simplicity we ignore this violation in the remainder.
 </tr>
 </tbody>
 </table>
-
- 
- <table class='gmisc_table' style='border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;' >
+&#10;
+<table class='gmisc_table' style='border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;' >
 <thead>
-<tr><th style='border-bottom: 1px solid grey; font-weight: 900; border-top: 2px solid grey; min-width: 7em; text-align: center;'></th>
+<tr><th style='border-bottom: 1px solid grey; border-top: 2px solid grey;'></th>
 <th style='font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;'>β</th>
 <th style='font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;'>S.E.</th>
 <th style='font-weight: 900; border-bottom: 1px solid grey; border-top: 2px solid grey; text-align: right;'>Wald <i>Z</i></th>
@@ -1247,26 +1268,31 @@ Click to expand code
 
 ``` r
 # Models -------------
-fit_csh <- CSC(
-  formula = Hist(time, status_num) ~ age + size + ncat + hr_status,
-  data = rdata
-)
+fit_csh <- riskRegression::CSC(
+  formula = Hist(time, status_num) ~ 
+    age + 
+    size + 
+    ncat + 
+    hr_status,
+  data = rdata)
 
 # External validation at 5 years
 horizon <- 5
 
 # Calculate predicted probabilities
-vdata$pred <- predictRisk(
+vdata$pred <- riskRegression::predictRisk(
   fit_csh,
   cause = 1,
   newdata = vdata,
-  times = horizon
-)
+  times = horizon)
 
 # Age
 oldpar <- par(mfrow = c(2, 2))
-par(xaxs = "i", yaxs = "i", las = 1)
-plot(vdata$age,
+par(xaxs = "i", 
+    yaxs = "i", 
+    las = 1)
+plot(
+  vdata$age,
   vdata$pred,
   bty = "n",
   xlim = c(65, 100),
@@ -1275,13 +1301,16 @@ plot(vdata$age,
   ylab = "Estimated risk"
 )
 lines(
-  lowess(vdata$age, vdata$pred),
+  stats::lowess(vdata$age, 
+                vdata$pred),
   col = "red",
   lwd = 2
 )
 
 # Size
-par(xaxs = "i", yaxs = "i", las = 1)
+par(xaxs = "i", 
+    yaxs = "i", 
+    las = 1)
 plot(
   vdata$size,
   vdata$pred,
@@ -1292,13 +1321,15 @@ plot(
   ylab = "Estimated risk"
 )
 lines(
-  lowess(vdata$size, vdata$pred),
+  stats::lowess(vdata$size, vdata$pred),
   col = "red",
   lwd = 2
 )
 
 # HR status
-par(xaxs = "i", yaxs = "i", las = 1)
+par(xaxs = "i", 
+    yaxs = "i", 
+    las = 1)
 plot(
   vdata$hr_status,
   vdata$pred,
@@ -1309,7 +1340,9 @@ plot(
 )
 
 # Nodal status
-par(xaxs = "i", yaxs = "i", las = 1)
+par(xaxs = "i", 
+    yaxs = "i", 
+    las = 1)
 plot(
   vdata$ncat,
   vdata$pred,
@@ -1370,45 +1403,48 @@ Click to expand code
 
 ``` r
 # Models ----------
-fit_csh <- CSC(Hist(time, status_num) ~
-age + size +
-  ncat + hr_status,
-data = rdata,
-fitter = "cph"
-)
+fit_csh <- riskRegression::CSC(
+  Hist(time, status_num) ~
+    age +
+    size +
+    ncat + 
+    hr_status,
+  data = rdata,
+  fitter = "cph")
 
 # useful objects
 primary_event <- 1 # Set to 2 if cause 2 was of interest
 horizon <- 5 # Set time horizon for prediction (here 5 years)
 
 # Predicted risk estimation
-pred <- predictRisk(fit_csh,
+pred <- riskRegression::predictRisk(
+  fit_csh,
   cause = primary_event,
   times = horizon,
-  newdata = vdata
-)
+  newdata = vdata)
 
 
 # Calibration plot (pseudo-obs approach) ----------------------------------
 # First compute riskRegression::Score()
-score_vdata <- Score(
+score_vdata <- riskRegression::Score(
   list("csh_validation" = fit_csh),
   formula = Hist(time, status_num) ~ 1,
   cens.model = "km",
+  cens.method = c("ipcw", "pseudo"),
   data = vdata,
   conf.int = TRUE,
   times = horizon,
   #  metrics = c("auc", "brier"),
   summary = c("ipa"),
   cause = primary_event,
-  plots = "calibration"
-)
+  plots = "calibration")
 
-calplot_pseudo <- plotCalibration(
+calplot_pseudo <- riskRegression::plotCalibration(
   x = score_vdata,
   brier.in.legend = FALSE,
   auc.in.legend = FALSE,
   cens.method = "pseudo",
+  pseudo = TRUE,
   bandwidth = 0.05, # leave as NULL for default choice of smoothing
   cex = 1,
   round = FALSE, # Important, keeps all unique risk estimates rather than rounding
@@ -1416,8 +1452,7 @@ calplot_pseudo <- plotCalibration(
   ylim = c(0, 0.6),
   rug = TRUE,
   xlab = "Predictions",
-  bty = "n"
-)
+  bty = "n")
 title("Calibration plot using pseudo observations")
 ```
 
@@ -1438,18 +1473,20 @@ Click to expand code
 
 ``` r
 # We can extract predicted and observed, observed will depend on degree of smoothing (bandwidth)
-dat_pseudo <- calplot_pseudo$plotFrames$csh_validation
+dat_pseudo <- calplot_pseudo$plotFrames[[1]]
 
 # Calculate difference between predicted and observed (make sure to use all estimated risks, not just unique ones)
-diff_pseudo <- pred - dat_pseudo$Obs[match(pred, dat_pseudo$Pred)]
+diff_pseudo <- pred - dat_pseudo$Obs[match(pred, 
+                                           dat_pseudo$Pred)]
 
 # Collect all numerical summary measures
 numsum_pseudo <- c(
   "ICI" = mean(abs(diff_pseudo)),
-  setNames(quantile(abs(diff_pseudo), c(0.5, 0.9)), c("E50", "E90")),
+  setNames(quantile(abs(diff_pseudo), 
+                    c(0.5, 0.9)), 
+           c("E50", "E90")),
   "Emax" = max(abs(diff_pseudo)),
-  "Root squared bias" = sqrt(mean(diff_pseudo^2))
-)
+  "Root squared bias" = sqrt(mean(diff_pseudo^2)))
 ```
 
 </details>
@@ -1517,13 +1554,14 @@ Click to expand code
 
 ``` r
 # Models ----------
-fit_csh <- CSC(Hist(time, status_num) ~
-age + size +
-  ncat + hr_status,
-data = rdata,
-fitter = "cph"
-)
-
+fit_csh <- riskRegression::CSC(
+  Hist(time, status_num) ~
+    age + 
+    size +
+    ncat + 
+    hr_status,
+  data = rdata,
+  fitter = "cph")
 
 # useful objects
 primary_event <- 1 # Set to 2 if cause 2 was of interest
@@ -1533,41 +1571,46 @@ horizon <- 5 # Set time horizon for prediction (here 5 years)
 # Calibration plot (flexible regression approach) -------------------------
 
 # Add estimated risk and complementary log-log of it to dataset
-vdata$pred <- predictRisk(fit_csh,
+vdata$pred <- riskRegression::predictRisk(
+  fit_csh,
   cause = primary_event,
   newdata = vdata,
-  times = horizon
-)
+  times = horizon)
+
 vdata$cll_pred <- log(-log(1 - pred))
 
 # 5 knots seems to give somewhat equivalent graph to pseudo method with bw = 0.05
 n_internal_knots <- 5 # Austin et al. advise to use between 3 (more smoothing, less flexible) and 5 (less smoothing, more flexible)
-rcs_vdata <- ns(vdata$cll_pred, df = n_internal_knots + 1)
-colnames(rcs_vdata) <- paste0("basisf_", colnames(rcs_vdata))
-vdata_bis <- cbind.data.frame(vdata, rcs_vdata)
+rcs_vdata <- splines::ns(vdata$cll_pred, 
+                         df = n_internal_knots + 1)
+colnames(rcs_vdata) <- paste0("basisf_", 
+                              colnames(rcs_vdata))
+vdata_bis <- cbind.data.frame(vdata, 
+                              rcs_vdata)
 
 # Use subdistribution hazards (Fine-Gray) model
-form_fgr <- reformulate(
+form_fgr <- stats::reformulate(
   termlabels = colnames(rcs_vdata),
-  response = "Hist(time, status_num)"
-)
+  response = "Hist(time, status_num)")
 
 # Regress subdistribution of event of interest on cloglog of estimated risks
-calib_fgr <- FGR(
+calib_fgr <- riskRegression::FGR(
   formula = form_fgr,
   cause = primary_event,
-  data = vdata_bis
-)
+  data = vdata_bis)
 
 # Add observed and predicted together in a data frame
-dat_fgr <- cbind.data.frame(
-  "obs" = predict(calib_fgr, times = horizon, newdata = vdata_bis),
-  "pred" = vdata$pred
-)
+dat_fgr <- base::cbind.data.frame(
+  "obs" = predict(calib_fgr, 
+                  times = horizon, 
+                  newdata = vdata_bis),
+  "pred" = vdata$pred)
 
 # Calibration plot
 dat_fgr <- dat_fgr[order(dat_fgr$pred), ]
-par(xaxs = "i", yaxs = "i", las = 1)
+par(xaxs = "i", 
+    yaxs = "i", 
+    las = 1)
 plot(
   x = dat_fgr$pred,
   y = dat_fgr$obs,
@@ -1578,7 +1621,10 @@ plot(
   ylab = "Observed outcome proportion",
   bty = "n"
 )
-abline(a = 0, b = 1, lty = "dashed", col = "red")
+abline(a = 0, 
+       b = 1, 
+       lty = "dashed", 
+       col = "red")
 title("Calibration plot using subdistribution hazard approach", 
       cex.main = .90)
 ```
@@ -1607,7 +1653,9 @@ diff_fgr <- dat_fgr$pred - dat_fgr$obs
 
 numsum_fgr <- c(
   "ICI" = mean(abs(diff_fgr)),
-  setNames(quantile(abs(diff_fgr), c(0.5, 0.9)), c("E50", "E90")),
+  setNames(quantile(abs(diff_fgr), 
+                    c(0.5, 0.9)),
+           c("E50", "E90")),
   "Emax" = max(abs(diff_fgr)),
   "Root squared bias" = sqrt(mean(diff_fgr^2))
 )
@@ -1678,9 +1726,11 @@ pseudos <- pseudos[order(pseudos$risk), ]
 
 # Use linear loess (weighted local regression with polynomial degree = 1) smoothing
 smooth_pseudos <- predict(
-  stats::loess(pseudovalue ~ risk, data = pseudos, degree = 1, span = 0.33), 
-  se = TRUE
-)
+  stats::loess(pseudovalue ~ risk, 
+               data = pseudos, 
+               degree = 1, 
+               span = 0.33), 
+  se = TRUE)
 
 # Calibration plot (reported in manuscript):
 
@@ -1704,9 +1754,10 @@ plot(
   frame.plot = FALSE,
   xlab = "Estimated risks",
   ylab = "Observed outcome proportions", 
-  type = "n"
-)
-axis(2, seq(0, 0.6, by = 0.1), labels = seq(0, 0.6, by = 0.1))
+  type = "n")
+axis(2, 
+     seq(0, 0.6, by = 0.1), 
+     labels = seq(0, 0.6, by = 0.1))
 polygon(
   x = c(pseudos$risk, rev(pseudos$risk)),
   y = c(
@@ -1716,8 +1767,12 @@ polygon(
   border = FALSE,
   col = "lightgray"
 )
-abline(a = 0, b = 1, col = "gray")
-lines(x = pseudos$risk, y = smooth_pseudos$fit, lwd = 2)
+abline(a = 0, 
+       b = 1, 
+       col = "gray")
+lines(x = pseudos$risk, 
+      y = smooth_pseudos$fit, 
+      lwd = 2)
 segments(
   x0 = bins[freqs > 0], 
   y0 = spike_bounds[1], 
@@ -1739,38 +1794,37 @@ Click to expand code
 
 ``` r
 # Models ----------
-fit_csh <- CSC(Hist(time, status_num) ~
-age + size +
-  ncat + hr_status,
-data = rdata,
-fitter = "cph"
-)
-
+fit_csh <- riskRegression::CSC(
+  Hist(time, status_num) ~
+    age + 
+    size +
+    ncat + 
+    hr_status,
+  data = rdata,
+  fitter = "cph")
 
 # useful objects
 primary_event <- 1 # Set to 2 if cause 2 was of interest
 horizon <- 5 # Set time horizon for prediction (here 5 years)
 
 # Add estimated risk and complementary log-log of it to dataset
-pred <- predictRisk(fit_csh,
+pred <- riskRegression::predictRisk(
+  fit_csh,
   cause = primary_event,
   newdata = vdata,
-  times = horizon
-)
+  times = horizon)
 
 ## Observed/Expected ratio --------------------------------------------
 # First calculate Aalen-Johansen estimate (as 'observed')
-obj <- summary(survfit(Surv(time, status) ~ 1,
-  data = vdata
-),
-times = horizon
-)
+obj <- summary(survfit(
+  Surv(time, status) ~ 1,
+  data = vdata),
+  times = horizon)
 
 aj <- list(
   "obs" = obj$pstate[, primary_event + 1],
   "se" = obj$std.err[, primary_event + 1]
 )
-
 
 # Calculate O/E
 OE <- aj$obs / mean(pred)
@@ -1778,19 +1832,20 @@ OE <- aj$obs / mean(pred)
 # For the confidence interval we use method proposed in Debray et al. (2017) doi:10.1136/bmj.i6460
 k <- 2
 alpha <- 0.05
-OE_summary <- cbind(
+OE_summary <- base::cbind(
   "OE" = OE,
   "Lower .95" = exp(log(OE) - qnorm(1 - alpha / 2) * aj$se / aj$obs),
-  "Upper .95" = exp(log(OE) + qnorm(1 - alpha / 2) * aj$se / aj$obs)
-)
+  "Upper .95" = exp(log(OE) + qnorm(1 - alpha / 2) * aj$se / aj$obs))
 
-OE_summary <- round(OE_summary, k)
+OE_summary <- base::round(OE_summary, k)
 ```
 
 </details>
 <table class="table table-striped" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
+<th style="text-align:left;">
+</th>
 <th style="text-align:right;">
 OE
 </th>
@@ -1804,6 +1859,9 @@ Upper .95
 </thead>
 <tbody>
 <tr>
+<td style="text-align:left;">
+rec
+</td>
 <td style="text-align:right;">
 0.81
 </td>
@@ -1829,40 +1887,41 @@ Click to expand code
 
 ``` r
 # Models ----------
-fit_csh <- CSC(Hist(time, status_num) ~
-age + size +
-  ncat + hr_status,
-data = rdata,
-fitter = "cph"
-)
-
+fit_csh <- riskRegression::CSC(
+  Hist(time, status_num) ~
+    age + 
+    size +
+    ncat + 
+    hr_status,
+  data = rdata,
+  fitter = "cph")
 
 # useful objects
 primary_event <- 1 # Set to 2 if cause 2 was of interest
 horizon <- 5 # Set time horizon for prediction (here 5 years)
 
 # Predicted risk estimation
-pred <- predictRisk(fit_csh,
+pred <- riskRegression::predictRisk(
+  fit_csh,
   cause = primary_event,
   times = horizon,
-  newdata = vdata
-)
+  newdata = vdata)
 
 
 # Calibration plot (pseudo-obs approach) ----------------------------------
 # First compute riskRegression::Score()
-score_vdata <- Score(
+score_vdata <- riskRegression::Score(
   list("csh_validation" = fit_csh),
   formula = Hist(time, status_num) ~ 1,
   cens.model = "km",
+  cens.method = c("ipcw", "pseudo"),
   data = vdata,
   conf.int = TRUE,
   times = horizon,
   #  metrics = c("auc", "brier"),
   summary = c("ipa"),
   cause = primary_event,
-  plots = "calibration"
-)
+  plots = "calibration")
 
 
 ## Calibration intercept and slope --------------------------------------
@@ -1876,28 +1935,26 @@ pseudos <- data.frame(score_vdata$Calibration$plotframe)
 pseudos$cll_pred <- log(-log(1 - pseudos$risk)) # add the cloglog risk ests
 
 # Fit model for calibration intercept
-fit_cal_int <- geese(
+fit_cal_int <- geepack::geese(
   pseudovalue ~ offset(cll_pred),
   data = pseudos,
-  id = ID,
+  id = riskRegression_ID,
   scale.fix = TRUE,
   family = gaussian,
   mean.link = "cloglog",
   corstr = "independence",
-  jack = TRUE
-)
+  jack = TRUE)
 
 # Fit model for calibration slope
-fit_cal_slope <- geese(
+fit_cal_slope <- geepack::geese(
   pseudovalue ~ offset(cll_pred) + cll_pred,
   data = pseudos,
-  id = ID,
+  id = riskRegression_ID,
   scale.fix = TRUE,
   family = gaussian,
   mean.link = "cloglog",
   corstr = "independence",
-  jack = TRUE
-)
+  jack = TRUE)
 
 # Perform joint test on intercept and slope
 betas <- fit_cal_slope$beta
@@ -1985,12 +2042,14 @@ Click to expand code
 
 ``` r
 # Models
-fit_csh <- CSC(Hist(time, status_num) ~
-age + size +
-  ncat + hr_status,
-data = rdata,
-fitter = "cph"
-)
+fit_csh <- riskRegression::CSC(
+  Hist(time, status_num) ~
+    age + 
+    size +
+    ncat + 
+    hr_status,
+  data = rdata,
+  fitter = "cph")
 
 # useful objects
 primary_event <- 1 # Set to 2 if cause 2 was of interest
@@ -2021,8 +2080,11 @@ C_vdata <- pec::cindex(
 
 B <- 100
 set.seed(1234)
-rboot <- bootstraps(rdata, times = B) # development - bootstrap
-vboot <- bootstraps(vdata, times = B) # validation - bootstrap
+rboot <- rsample::bootstraps(rdata, 
+                             times = B) # development - bootstrap
+
+vboot <- rsample::bootstraps(vdata, 
+                             times = B) # validation - bootstrap
 
 C_boot <- function(split) {
   pec::cindex(
@@ -2036,41 +2098,42 @@ C_boot <- function(split) {
 
 # Run time-dependent AUC in the bootstrapped development and validation data
 # to calculate the non-parametric CI through percentile bootstrap
-rboot <- rboot |> mutate(
-  C_rboot = map_dbl(splits, C_boot),
-)
-vboot <- vboot |> mutate(
-  C_vboot = map_dbl(splits, C_boot),
-)
+rboot <- rboot %>% 
+  dplyr::mutate(
+    C_rboot = purrr::map_dbl(splits, C_boot))
+
+vboot <- vboot %>% 
+  dplyr::mutate(
+    C_vboot = purrr::map_dbl(splits, C_boot))
 
 
 # Time-dependent AUC ---------
 
 # Development data
-score_rdata <- Score(
+score_rdata <- riskRegression::Score(
   list("csh_development" = fit_csh),
   formula = Hist(time, status_num) ~ 1,
   cens.model = "km",
+  cens.method = c("ipcw", "pseudo"),
   data = rdata,
   conf.int = TRUE,
   times = horizon,
   metrics = c("auc"),
   cause = primary_event,
-  plots = "calibration"
-)
+  plots = "calibration")
 
 # Validation data
-score_vdata <- Score(
+score_vdata <- riskRegression::Score(
   list("csh_validation" = fit_csh),
   formula = Hist(time, status_num) ~ 1,
   cens.model = "km",
+  cens.method = c("ipcw", "pseudo"),
   data = vdata,
   conf.int = TRUE,
   times = horizon,
   metrics = c("auc"),
   cause = primary_event,
-  plots = "calibration"
-)
+  plots = "calibration")
 ```
 
 </details>
@@ -2185,42 +2248,48 @@ Click to expand code
 
 ``` r
 # Models --------------
-fit_csh <- CSC(Hist(time, status_num) ~
-age + size +
-  ncat + hr_status,
-data = rdata,
-fitter = "cph"
-)
+fit_csh <- riskRegression::CSC(
+  Hist(time, status_num) ~
+    age +
+    size +
+    ncat + 
+    hr_status,
+  data = rdata,
+  fitter = "cph")
+
 primary_event <- 1 # Set to 2 if cause 2 was of interest
 
 # AUCs development data
-AUC_rdata <- Score(
+AUC_rdata <- riskRegression::Score(
   list("csh_development" = fit_csh),
   formula = Hist(time, status_num) ~ 1,
   cens.model = "km",
+  cens.method = c("ipcw", "pseudo"),
   data = rdata,
   conf.int = TRUE,
   times = seq(0.4, 5.1, 0.2),
   metrics = c("auc"),
-  cause = primary_event
-)
+  cause = primary_event)
 
 # AUCs validation data
-AUC_vdata <- Score(
+AUC_vdata <- riskRegression::Score(
   list("csh_validation" = fit_csh),
   formula = Hist(time, status_num) ~ 1,
   cens.model = "km",
+  cens.method = c("ipcw", "pseudo"),
   data = vdata,
   conf.int = TRUE,
   times = seq(0.5, 5.01, 0.1),
   metrics = c("auc"),
-  cause = primary_event
-)
+  cause = primary_event)
 
 # Plot
-par(las = 1, xaxs = "i", yaxs = "i")
+par(las = 1, 
+    xaxs = "i", 
+    yaxs = "i")
 oldpar <- par(mfrow = c(1, 2))
-plot(AUC_rdata$times,
+plot(
+  AUC_rdata$times,
   AUC_rdata$AUC$score$AUC,
   type = "l",
   bty = "n",
@@ -2239,10 +2308,12 @@ c(
   AUC_rdata$AUC$score$lower,
   rev(AUC_rdata$AUC$score$upper)
 ),
-col = rgb(160, 160, 160, maxColorValue = 255, alpha = 100),
-border = FALSE
-)
-lines(AUC_rdata$times,
+col = rgb(160, 160, 160, 
+          maxColorValue = 255, 
+          alpha = 100),
+border = FALSE)
+lines(
+  AUC_rdata$times,
   AUC_rdata$AUC$score$AUC,
   col = "black",
   lwd = 2,
@@ -2251,7 +2322,8 @@ lines(AUC_rdata$times,
 title("Development data", adj = 0)
 
 # Validation data
-plot(AUC_vdata$times,
+plot(
+  AUC_vdata$times,
   AUC_vdata$AUC$score$AUC,
   type = "l",
   bty = "n",
@@ -2270,10 +2342,12 @@ c(
   AUC_vdata$AUC$score$lower,
   rev(AUC_vdata$AUC$score$upper)
 ),
-col = rgb(160, 160, 160, maxColorValue = 255, alpha = 100),
-border = FALSE
-)
-lines(AUC_vdata$times,
+col = rgb(160, 160, 160, 
+          maxColorValue = 255, 
+          alpha = 100),
+border = FALSE)
+lines(
+  AUC_vdata$times,
   AUC_vdata$AUC$score$AUC,
   col = "black",
   lwd = 2,
@@ -2301,12 +2375,14 @@ Click to expand code
 source(here::here("R/roystonD.R"))
 
 # Models ----------
-fit_csh <- CSC(Hist(time, status_num) ~
-age + size +
-  ncat + hr_status,
-data = rdata,
-fitter = "cph"
-)
+fit_csh <- riskRegression::CSC(
+  Hist(time, status_num) ~
+    age + 
+    size +
+    ncat + 
+    hr_status,
+  data = rdata,
+  fitter = "cph")
 
 
 # useful objects
@@ -2314,29 +2390,29 @@ primary_event <- 1 # Set to 2 if cause 2 was of interest
 horizon <- 5 # Set time horizon for prediction (here 5 years)
 
 # Predicted risk estimation
-rdata$pred <- predictRisk(fit_csh,
+rdata$pred <- riskRegression::predictRisk(
+  fit_csh,
   cause = primary_event,
   times = horizon,
-  newdata = rdata
-)
+  newdata = rdata)
 
-vdata$pred <- predictRisk(fit_csh,
+vdata$pred <- riskRegression::predictRisk(
+  fit_csh,
   cause = primary_event,
   times = horizon,
-  newdata = vdata
-)
+  newdata = vdata)
 
 # Rank based on predicted values at 5 years
 
-rdata$rank <- rank(rdata$pred,
+rdata$rank <- base::rank(
+  rdata$pred,
   na.last = TRUE,
-  ties.method = "first"
-)
+  ties.method = "first")
 
-vdata$rank <- rank(vdata$pred,
+vdata$rank <- base::rank(
+  vdata$pred,
   na.last = TRUE,
-  ties.method = "first"
-)
+  ties.method = "first")
 
 
 res_rdata <- royston_R2D_cmprsk(
@@ -2435,12 +2511,14 @@ Click to expand code
 
 ``` r
 # Models -------------------
-fit_csh <- CSC(Hist(time, status_num) ~
-age + size +
-  ncat + hr_status,
-data = rdata,
-fitter = "cph"
-)
+fit_csh <- riskRegression::CSC(
+  Hist(time, status_num) ~
+    age + 
+    size +
+    ncat + 
+    hr_status,
+  data = rdata,
+  fitter = "cph")
 fit_csc1 <- fit_csh$models$`Cause 1`
 fit_csc2 <- fit_csh$models$`Cause 2`
 
@@ -2449,32 +2527,32 @@ primary_event <- 1 # Set to 2 if cause 2 was of interest
 horizon <- 5 # Set time horizon for prediction (here 5 years)
 
 # Development data
-score_rdata <- Score(
+score_rdata <- riskRegression::Score(
   list("csh_development" = fit_csh),
   formula = Hist(time, status_num) ~ 1,
   cens.model = "km",
+  cens.method = c("ipcw", "pseudo"),
   data = rdata,
   conf.int = TRUE,
   times = horizon,
   metrics = c("auc", "brier"),
   summary = c("ipa"),
   cause = primary_event,
-  plots = "calibration"
-)
+  plots = "calibration")
 
 # Validation data
-score_vdata <- Score(
+score_vdata <- riskRegression::Score(
   list("csh_validation" = fit_csh),
   formula = Hist(time, status_num) ~ 1,
   cens.model = "km",
+  cens.method = c("ipcw", "pseudo"),
   data = vdata,
   conf.int = TRUE,
   times = horizon,
   metrics = c("auc", "brier"),
   summary = c("ipa"),
   cause = primary_event,
-  plots = "calibration"
-)
+  plots = "calibration")
 
 # Bootstrap ------
 # Functions to expand data and calculate Brier, IPA and AUC in bootstrap
@@ -2488,34 +2566,36 @@ score_vdata <- Score(
 
 # Score functions in any bootstrap data
 score_boot <- function(split) {
-  Score(
+  riskRegression::Score(
     list("csh_validation" = fit_csh),
     formula = Hist(time, status_num) ~ 1,
     cens.model = "km",
+    cens.method = c("ipcw", "pseudo"),
     data = analysis(split),
     conf.int = TRUE,
     times = horizon,
     metrics = c("auc", "brier"),
     summary = c("ipa"),
     cause = primary_event,
-    plots = "calibration"
-  )
+    plots = "calibration")
 }
 
 # Development data
-rboot <- rboot |> mutate(
-  score = map(splits, score_boot),
-  scaled_brier = map_dbl(score, function(x) {
-    x$Brier$score[model == "csh_validation"]$IPA
-  })
-)
+rboot <- rboot %>%
+  dplyr::mutate(
+    score = purrr::map(splits, 
+                       score_boot),
+    scaled_brier = purrr::map_dbl(score, 
+                                  function(x) {
+                                    x$Brier$score[model == "csh_validation"]$IPA}))
 # Validation data
-vboot <- vboot |> mutate(
-  score = map(splits, score_boot),
-  scaled_brier = map_dbl(score, function(x) {
-    x$Brier$score[model == "csh_validation"]$IPA
-  })
-)
+vboot <- vboot %>% 
+  dplyr::mutate(
+    score = purrr::map(splits, 
+                       score_boot),
+    scaled_brier = purrr::map_dbl(score, 
+                                  function(x) {
+                                    x$Brier$score[model == "csh_validation"]$IPA}))
 ```
 
 </details>
@@ -2637,12 +2717,14 @@ Click to expand code
 source(here::here("R/stdca.R"))
 
 # Models ------------------------------
-fit_csh <- CSC(Hist(time, status_num) ~
-age + size +
-  ncat + hr_status,
-data = rdata,
-fitter = "cph"
-)
+fit_csh <- riskRegression::CSC(
+  Hist(time, status_num) ~
+    age + 
+    size +
+    ncat + 
+    hr_status,
+  data = rdata,
+  fitter = "cph")
 
 # useful objects
 primary_event <- 1 # Set to 2 if cause 2 was of interest
@@ -2650,11 +2732,12 @@ horizon <- 5 # Set time horizon for prediction (here 5 years)
 
 # Development data
 # calculation estimated risk
-rdata$pred5 <- predictRisk(fit_csh,
+rdata$pred5 <- riskRegression::predictRisk(
+  fit_csh,
   cause = primary_event,
   newdata = rdata,
-  times = horizon
-)
+  times = horizon)
+
 rdata <- as.data.frame(rdata)
 dca_rdata <- stdca(
   data = rdata,
@@ -2665,17 +2748,16 @@ dca_rdata <- stdca(
   xstop = 0.35,
   ymin = -0.01,
   graph = FALSE,
-  cmprsk = TRUE
-)
+  cmprsk = TRUE)
 # Decision curves plot
 oldpar <- par(
   xaxs = "i",
   yaxs = "i",
   las = 1,
   mar = c(6.1, 5.8, 4.1, 2.1),
-  mgp = c(4.25, 1, 0)
-)
-plot(dca_rdata$net.benefit$threshold,
+  mgp = c(4.25, 1, 0))
+plot(
+  dca_rdata$net.benefit$threshold,
   dca_rdata$net.benefit$pred5,
   type = "l",
   lwd = 2,
@@ -2685,31 +2767,38 @@ plot(dca_rdata$net.benefit$threshold,
   xlim = c(0, 0.5),
   ylim = c(-0.10, 0.10),
   bty = "n",
-  xaxt = "n"
-)
+  xaxt = "n")
 legend("topright",
-  c("Treat all", "Treat none", "Prediction model"),
+  c("Treat all", 
+    "Treat none", 
+    "Prediction model"),
   lwd = c(2, 2, 2),
   lty = c(1, 2, 1),
-  col = c("darkgray", "black", "black"),
+  col = c("darkgray", 
+          "black", 
+          "black"),
   bty = "n"
 )
-lines(dca_rdata$net.benefit$threshold,
+lines(
+  dca_rdata$net.benefit$threshold,
   dca_rdata$net.benefit$none,
   type = "l",
   lwd = 2,
   lty = 4
 )
-lines(dca_rdata$net.benefit$threshold,
+lines(
+  dca_rdata$net.benefit$threshold,
   dca_rdata$net.benefit$all,
   type = "l",
   lwd = 2,
   col = "darkgray"
 )
-axis(1,
+axis(
+  1,
   at = c(0, 0.1, 0.2, 0.3, 0.4, 0.5)
 )
-axis(1,
+axis(
+  1,
   pos = -0.145,
   at = c(0.1, 0.2, 0.3, 0.4, 0.5),
   labels = c("1:9", "1:4", "3:7", "2:3", "1:1")
@@ -2722,7 +2811,8 @@ par(oldpar)
 
 # Validation data
 # Predicted probability calculation
-vdata$pred5 <- predictRisk(fit_csh,
+vdata$pred5 <- riskRegression::predictRisk(
+  fit_csh,
   cause = primary_event,
   newdata = vdata,
   times = horizon
@@ -2750,7 +2840,8 @@ oldpar <- par(
   mar = c(6.1, 5.8, 4.1, 2.1),
   mgp = c(4.25, 1, 0)
 )
-plot(dca_vdata$net.benefit$threshold,
+plot(
+  dca_vdata$net.benefit$threshold,
   dca_vdata$net.benefit$pred5,
   type = "l",
   lwd = 2,
@@ -2762,33 +2853,35 @@ plot(dca_vdata$net.benefit$threshold,
   bty = "n",
   xaxt = "n"
 )
-lines(dca_vdata$net.benefit$threshold,
+lines(
+  dca_vdata$net.benefit$threshold,
   dca_vdata$net.benefit$none,
   type = "l",
   lwd = 2,
-  lty = 4
-)
-lines(dca_vdata$net.benefit$threshold,
+  lty = 4)
+lines(
+  dca_vdata$net.benefit$threshold,
   dca_vdata$net.benefit$all,
   type = "l",
   lwd = 2,
-  col = "darkgray"
-)
-legend("topright",
-  c("Treat all", "Treat none", "Prediction model"),
+  col = "darkgray")
+legend(
+  "topright",
+  c("Treat all", 
+    "Treat none", 
+    "Prediction model"),
   lwd = c(2, 2, 2),
   lty = c(1, 2, 1),
   col = c("darkgray", "black", "black"),
-  bty = "n"
-)
-axis(1,
-  at = c(0, 0.1, 0.2, 0.3, 0.4, 0.5)
-)
-axis(1,
+  bty = "n")
+axis(
+  1,
+  at = c(0, 0.1, 0.2, 0.3, 0.4, 0.5))
+axis(
+  1,
   pos = -0.145,
   at = c(0.1, 0.2, 0.3, 0.4, 0.5),
-  labels = c("1:9", "1:4", "3:7", "2:3", "1:1")
-)
+  labels = c("1:9", "1:4", "3:7", "2:3", "1:1"))
 mtext("Threshold probability", 1, line = 2)
 mtext("Harm to benefit ratio", 1, line = 5)
 title("Validation data")
@@ -2809,71 +2902,70 @@ benefit of 0.014 choosing a threshold of 20%.
 sessionInfo()
 ```
 
-    ## R version 4.2.1 (2022-06-23 ucrt)
+    ## R version 4.3.3 (2024-02-29 ucrt)
     ## Platform: x86_64-w64-mingw32/x64 (64-bit)
-    ## Running under: Windows 10 x64 (build 22621)
+    ## Running under: Windows 10 x64 (build 19045)
     ## 
     ## Matrix products: default
     ## 
+    ## 
     ## locale:
-    ## [1] LC_COLLATE=English_Netherlands.utf8  LC_CTYPE=English_Netherlands.utf8   
-    ## [3] LC_MONETARY=English_Netherlands.utf8 LC_NUMERIC=C                        
-    ## [5] LC_TIME=English_Netherlands.utf8    
+    ## [1] LC_COLLATE=English_United Kingdom.utf8 
+    ## [2] LC_CTYPE=English_United Kingdom.utf8   
+    ## [3] LC_MONETARY=English_United Kingdom.utf8
+    ## [4] LC_NUMERIC=C                           
+    ## [5] LC_TIME=English_United Kingdom.utf8    
+    ## 
+    ## time zone: Europe/Rome
+    ## tzcode source: internal
     ## 
     ## attached base packages:
     ## [1] splines   stats     graphics  grDevices utils     datasets  methods  
     ## [8] base     
     ## 
     ## other attached packages:
-    ##  [1] webshot_0.5.4             gridExtra_2.3            
-    ##  [3] rsample_1.1.0             forcats_0.5.2            
-    ##  [5] stringr_1.4.1             dplyr_1.0.10             
-    ##  [7] purrr_0.3.5               readr_2.1.3              
-    ##  [9] tidyr_1.2.1               tibble_3.1.8             
-    ## [11] tidyverse_1.3.2           boot_1.3-28              
-    ## [13] gtsummary_1.6.2           kableExtra_1.3.4         
-    ## [15] knitr_1.40                plotrix_3.8-2            
-    ## [17] pec_2022.05.04            prodlim_2019.11.13       
-    ## [19] pseudo_1.4.3              geepack_1.3.9            
-    ## [21] KMsurv_0.1-5              mstate_0.3.2             
-    ## [23] riskRegression_2022.09.23 cmprsk_2.2-11            
-    ## [25] rms_6.3-0                 SparseM_1.81             
-    ## [27] Hmisc_4.7-1               ggplot2_3.3.6            
-    ## [29] Formula_1.2-4             lattice_0.20-45          
-    ## [31] survival_3.3-1            pacman_0.5.1             
+    ##  [1] webshot_0.5.5             gridExtra_2.3            
+    ##  [3] rsample_1.3.1             lubridate_1.9.4          
+    ##  [5] forcats_1.0.0             stringr_1.5.1            
+    ##  [7] dplyr_1.1.4               purrr_1.0.2              
+    ##  [9] readr_2.1.5               tidyr_1.3.1              
+    ## [11] tibble_3.2.1              ggplot2_3.5.2            
+    ## [13] tidyverse_2.0.0           boot_1.3-31              
+    ## [15] gtsummary_1.7.2           kableExtra_1.4.0         
+    ## [17] knitr_1.50                plotrix_3.8-4            
+    ## [19] pec_2025.06.24            prodlim_2025.04.28       
+    ## [21] pseudo_1.4.3              geepack_1.3.12           
+    ## [23] KMsurv_0.1-6              mstate_0.3.3             
+    ## [25] riskRegression_2025.05.20 cmprsk_2.2-12            
+    ## [27] rms_6.8-0                 Hmisc_5.2-3              
+    ## [29] survival_3.8-3            pacman_0.5.1             
     ## 
     ## loaded via a namespace (and not attached):
-    ##   [1] googledrive_2.0.0   TH.data_1.1-1       colorspace_2.0-3   
-    ##   [4] deldir_1.0-6        ellipsis_0.3.2      rprojroot_2.0.3    
-    ##   [7] htmlTable_2.4.1     fs_1.5.2            base64enc_0.1-3    
-    ##  [10] rstudioapi_0.14     furrr_0.3.1         listenv_0.8.0      
-    ##  [13] MatrixModels_0.5-1  lubridate_1.8.0     fansi_1.0.3        
-    ##  [16] mvtnorm_1.1-3       xml2_1.3.3          codetools_0.2-18   
-    ##  [19] jsonlite_1.8.2      gt_0.7.0            broom_1.0.1        
-    ##  [22] cluster_2.1.3       dbplyr_2.2.1        png_0.1-7          
-    ##  [25] compiler_4.2.1      httr_1.4.4          backports_1.4.1    
-    ##  [28] assertthat_0.2.1    Matrix_1.5-1        fastmap_1.1.0      
-    ##  [31] gargle_1.2.1        cli_3.4.1           htmltools_0.5.3    
-    ##  [34] quantreg_5.94       tools_4.2.1         gtable_0.3.1       
-    ##  [37] glue_1.6.2          Rcpp_1.0.9          cellranger_1.1.0   
-    ##  [40] vctrs_0.4.2         svglite_2.1.0       nlme_3.1-157       
-    ##  [43] iterators_1.0.14    broom.helpers_1.9.0 xfun_0.33          
-    ##  [46] globals_0.16.1      rvest_1.0.3         lifecycle_1.0.3    
-    ##  [49] googlesheets4_1.0.1 future_1.28.0       polspline_1.1.20   
-    ##  [52] MASS_7.3-57         zoo_1.8-11          scales_1.2.1       
-    ##  [55] hms_1.1.2           parallel_4.2.1      sandwich_3.0-2     
-    ##  [58] RColorBrewer_1.1-3  yaml_2.3.5          rpart_4.1.16       
-    ##  [61] latticeExtra_0.6-30 stringi_1.7.8       highr_0.9          
-    ##  [64] foreach_1.5.2       checkmate_2.1.0     lava_1.6.10        
-    ##  [67] mets_1.3.1          rlang_1.0.6         pkgconfig_2.0.3    
-    ##  [70] systemfonts_1.0.4   evaluate_0.17       htmlwidgets_1.5.4  
-    ##  [73] tidyselect_1.2.0    here_1.0.1          parallelly_1.32.1  
-    ##  [76] magrittr_2.0.3      R6_2.5.1            generics_0.1.3     
-    ##  [79] multcomp_1.4-20     DBI_1.1.3           haven_2.5.1        
-    ##  [82] pillar_1.8.1        foreign_0.8-82      withr_2.5.0        
-    ##  [85] nnet_7.3-17         future.apply_1.9.1  crayon_1.5.2       
-    ##  [88] modelr_0.1.9        interp_1.1-3        utf8_1.2.2         
-    ##  [91] tzdb_0.3.0          rmarkdown_2.17      timereg_2.0.2      
-    ##  [94] jpeg_0.1-9          readxl_1.4.1        grid_4.2.1         
-    ##  [97] data.table_1.14.2   reprex_2.0.2        digest_0.6.29      
-    ## [100] numDeriv_2016.8-1.1 munsell_0.5.0       viridisLite_0.4.1
+    ##  [1] sandwich_3.1-1       rlang_1.1.6          magrittr_2.0.3      
+    ##  [4] multcomp_1.4-28      furrr_0.3.1          polspline_1.1.25    
+    ##  [7] compiler_4.3.3       systemfonts_1.2.3    vctrs_0.6.5         
+    ## [10] quantreg_6.1         pkgconfig_2.0.3      shape_1.4.6.1       
+    ## [13] fastmap_1.2.0        backports_1.5.0      rmarkdown_2.29      
+    ## [16] tzdb_0.5.0           MatrixModels_0.5-4   xfun_0.52           
+    ## [19] glmnet_4.1-10        timereg_2.0.6        broom_1.0.9         
+    ## [22] parallel_4.3.3       cluster_2.1.8.1      R6_2.6.1            
+    ## [25] stringi_1.8.4        RColorBrewer_1.1-3   parallelly_1.45.1   
+    ## [28] rpart_4.1.24         numDeriv_2016.8-1.1  Rcpp_1.1.0          
+    ## [31] iterators_1.0.14     future.apply_1.20.0  zoo_1.8-14          
+    ## [34] base64enc_0.1-3      timechange_0.3.0     Matrix_1.6-5        
+    ## [37] nnet_7.3-20          tidyselect_1.2.1     rstudioapi_0.17.1   
+    ## [40] yaml_2.3.10          codetools_0.2-20     listenv_0.9.1       
+    ## [43] lattice_0.22-5       withr_3.0.2          evaluate_1.0.4      
+    ## [46] foreign_0.8-90       future_1.67.0        xml2_1.3.6          
+    ## [49] pillar_1.11.0        checkmate_2.3.2      foreach_1.5.2       
+    ## [52] generics_0.1.4       rprojroot_2.1.0      hms_1.1.3           
+    ## [55] scales_1.4.0         globals_0.18.0       glue_1.7.0          
+    ## [58] tools_4.3.3          data.table_1.16.2    SparseM_1.84-2      
+    ## [61] mvtnorm_1.3-3        grid_4.3.3           colorspace_2.1-1    
+    ## [64] nlme_3.1-164         htmlTable_2.4.3      Formula_1.2-5       
+    ## [67] cli_3.6.2            broom.helpers_1.15.0 viridisLite_0.4.2   
+    ## [70] svglite_2.1.3        lava_1.8.1           mets_1.3.5          
+    ## [73] gt_1.0.0             gtable_0.3.6         digest_0.6.35       
+    ## [76] TH.data_1.1-3        htmlwidgets_1.6.4    farver_2.1.2        
+    ## [79] htmltools_0.5.8.1    lifecycle_1.0.4      here_1.0.1          
+    ## [82] MASS_7.3-60.0.1
