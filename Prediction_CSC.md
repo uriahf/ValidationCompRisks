@@ -94,11 +94,11 @@ pacman::p_load(
 )
 
 # Import data ------------------
-rdata <- readRDS(here::here("Data/rdata.rds"))
-vdata <- readRDS(here::here("Data/vdata.rds"))
+rdata <- base::readRDS(here::here("Data/rdata.rds"))
+vdata <- base::readRDS(here::here("Data/vdata.rds"))
 
-rdata$hr_status <- relevel(rdata$hr_status, ref = "ER and/or PR +")
-vdata$hr_status <- relevel(vdata$hr_status, ref = "ER and/or PR +")
+rdata$hr_status <- stats::relevel(rdata$hr_status, ref = "ER and/or PR +")
+vdata$hr_status <- stats::relevel(vdata$hr_status, ref = "ER and/or PR +")
 ```
 
 We loaded the development data (rdata) and the validation data (vdata).
@@ -272,40 +272,51 @@ Click to expand code
 # Expand datasets -------------------------
 
 # Expand data to prepare for fitting the model
-rdata.w <- crprep(
+rdata.w <- mstate::crprep(
   Tstop = "time",
   status = "status_num",
   trans = c(1, 2),
   id = "id",
   keep = c("age", "size", "ncat", "hr_status"),
-  data = rdata
-)
+  data = rdata)
+
 # Save extended data with weights for recurrence (failcode=1)
 # and non recurrence mortality (failcode=2)
-rdata.w1 <- rdata.w |> filter(failcode == 1)
-rdata.w2 <- rdata.w |> filter(failcode == 2)
-vdata.w <- crprep(
+rdata.w1 <- 
+  rdata.w %>% 
+  dplyr::filter(failcode == 1)
+
+rdata.w2 <- 
+  rdata.w %>% 
+  dplyr::filter(failcode == 2)
+
+vdata.w <- mstate::crprep(
   Tstop = "time",
   status = "status_num",
   trans = c(1, 2),
   id = "id",
   keep = c("age", "size", "ncat", "hr_status"),
-  data = vdata
-)
-vdata.w1 <- vdata.w |> filter(failcode == 1)
-vdata.w2 <- vdata.w |> filter(failcode == 2)
+  data = vdata)
+
+vdata.w1 <- 
+  vdata.w %>% 
+  dplyr::filter(failcode == 1)
+
+vdata.w2 <- 
+  vdata.w %>% 
+  dplyr::filter(failcode == 2)
 
 # Development set --------
-mfit_rdata <- survfit(
+mfit_rdata <- survival::survfit(
   Surv(Tstart, Tstop, status == 1) ~ 1,
   data = rdata.w1, 
-  weights = weight.cens
-)
-mfit_vdata <- survfit(
+  weights = weight.cens)
+
+mfit_vdata <- survival::survfit(
   Surv(Tstart, Tstop, status == 1) ~ 1,
   data = vdata.w1, 
-  weights = weight.cens
-)
+  weights = weight.cens)
+
 par(xaxs = "i", yaxs = "i", las = 1)
 oldpar <- par(mfrow = c(1, 2), mar = c(5, 5, 1, 1))
 plot(
@@ -333,8 +344,11 @@ title("Validation data")
 par(oldpar)
 
 # Cumulative incidences
-smfit_rdata <- summary(mfit_rdata, times = c(1, 2, 3, 4, 5))
-smfit_vdata <- summary(mfit_vdata, times = c(1, 2, 3, 4, 5))
+smfit_rdata <- summary(mfit_rdata, 
+                       times = c(1, 2, 3, 4, 5))
+
+smfit_vdata <- summary(mfit_vdata, 
+                       times = c(1, 2, 3, 4, 5))
 ```
 
 </details>
@@ -532,7 +546,7 @@ Click to expand code
 
 ``` r
 # Models without splines
-fit_csh <- CSC(
+fit_csh <- riskRegression::CSC(
   Hist(time, status_num) ~ age + size + ncat + hr_status,
   data = rdata,
   fitter = "cph"
@@ -542,12 +556,16 @@ fit_csc1 <- fit_csh$models$`Cause 1`
 fit_csc2 <- fit_csh$models$`Cause 2`
 
 # Models with splines
-dd <- datadist(rdata)
+dd <- rms::datadist(rdata)
 options(datadist = "dd")
 
 # Recurrence
-fit_csc1_rcs <- cph(
-  Surv(time, status_num == 1) ~ rcs(age, 3) + rcs(size, 3) + ncat + hr_status,
+fit_csc1_rcs <- rms::cph(
+  Surv(time, status_num == 1) ~ 
+    rcs(age, 3) + 
+    rcs(size, 3) + 
+    ncat + 
+    hr_status,
   x = T,
   y = T,
   surv = T,
@@ -556,14 +574,20 @@ fit_csc1_rcs <- cph(
 # print(fit_csc1_rcs)
 # print(summary(fit_csc1_rcs))
 # print(anova(fit_csc1_rcs))
-P_csc1_age_rcs <- Predict(fit_csc1_rcs, "age")
-P_csc1_size_rcs <- Predict(fit_csc1_rcs, "size")
+P_csc1_age_rcs <- rms::Predict(fit_csc1_rcs, "age")
+P_csc1_size_rcs <- rms::Predict(fit_csc1_rcs, "size")
 options(datadist = NULL)
+
+
 # Non-recurrence mortality
 dd <- datadist(rdata)
 options(datadist = "dd")
-fit_csc2_rcs <- cph(
-  Surv(time, status_num == 2) ~ rcs(age, 3) + rcs(size, 3) + ncat + hr_status,
+fit_csc2_rcs <- rms::cph(
+  Surv(time, status_num == 2) ~ 
+    rcs(age, 3) + 
+    rcs(size, 3) + 
+    ncat + 
+    hr_status,
   x = T,
   y = T,
   surv = T,
@@ -572,11 +596,15 @@ fit_csc2_rcs <- cph(
 # print(fit_csc2_rcs)
 # print(summary(fit_csc2_rcs))
 # print(anova(fit_csc2_rcs))
-P_csc2_age_rcs <- Predict(fit_csc2_rcs, "age")
-P_csc2_size_rcs <- Predict(fit_csc2_rcs, "size")
+P_csc2_age_rcs <- rms::Predict(fit_csc2_rcs, "age")
+P_csc2_size_rcs <- rms::Predict(fit_csc2_rcs, "size")
+
 options(datadist = NULL)
-oldpar <- par(mfrow = c(2, 2), mar = c(5, 5, 1, 1))
-par(xaxs = "i", yaxs = "i", las = 1)
+oldpar <- par(mfrow = c(2, 2),
+              mar = c(5, 5, 1, 1))
+par(xaxs = "i", 
+    yaxs = "i", 
+    las = 1)
 plot(
   P_csc1_age_rcs$age,
   P_csc1_age_rcs$yhat,
@@ -590,8 +618,10 @@ plot(
   xlim = c(65, 95)
 )
 polygon(
-  c(P_csc1_age_rcs$age, rev(P_csc1_age_rcs$age)),
-  c(P_csc1_age_rcs$lower, rev(P_csc1_age_rcs$upper)),
+  c(P_csc1_age_rcs$age, 
+    rev(P_csc1_age_rcs$age)),
+  c(P_csc1_age_rcs$lower, 
+    rev(P_csc1_age_rcs$upper)),
   col = "grey75",
   border = FALSE
 )
@@ -610,7 +640,9 @@ plot(
 )
 title("Recurrence")
 # CSC 1- size
-par(xaxs = "i", yaxs = "i", las = 1)
+par(xaxs = "i", 
+    yaxs = "i", 
+    las = 1)
 plot(
   P_csc1_size_rcs$size,
   P_csc1_size_rcs$yhat,
@@ -624,8 +656,10 @@ plot(
   xlim = c(0, 7)
 )
 polygon(
-  c(P_csc1_size_rcs$size, rev(P_csc1_size_rcs$size)),
-  c(P_csc1_size_rcs$lower, rev(P_csc1_size_rcs$upper)),
+  c(P_csc1_size_rcs$size, 
+    rev(P_csc1_size_rcs$size)),
+  c(P_csc1_size_rcs$lower, 
+    rev(P_csc1_size_rcs$upper)),
   col = "grey75",
   border = FALSE
 )
@@ -643,7 +677,9 @@ plot(
   xlim = c(0, 7)
 )
 title("Recurrence")
-par(xaxs = "i", yaxs = "i", las = 1)
+par(xaxs = "i", 
+    yaxs = "i", 
+    las = 1)
 options(datadist = NULL)
 # CSC 2- age
 plot(
@@ -659,8 +695,10 @@ plot(
   xlim = c(65, 95)
 )
 polygon(
-  c(P_csc2_age_rcs$age, rev(P_csc2_age_rcs$age)),
-  c(P_csc2_age_rcs$lower, rev(P_csc2_age_rcs$upper)),
+  c(P_csc2_age_rcs$age, 
+    rev(P_csc2_age_rcs$age)),
+  c(P_csc2_age_rcs$lower, 
+    rev(P_csc2_age_rcs$upper)),
   col = "grey75",
   border = FALSE
 )
@@ -693,8 +731,10 @@ plot(
   xlim = c(0, 7)
 )
 polygon(
-  c(P_csc2_size_rcs$size, rev(P_csc2_size_rcs$size)),
-  c(P_csc2_size_rcs$lower, rev(P_csc2_size_rcs$upper)),
+  c(P_csc2_size_rcs$size, 
+    rev(P_csc2_size_rcs$size)),
+  c(P_csc2_size_rcs$lower, 
+    rev(P_csc2_size_rcs$upper)),
   col = "grey75",
   border = FALSE
 )
@@ -775,25 +815,36 @@ Click to expand code
 </summary>
 
 ``` r
-zp_csc1 <- cox.zph(fit_csc1, transform = "identity")
-par(las = 1, xaxs = "i", yaxs = "i")
+zp_csc1 <- survival::cox.zph(fit_csc1, 
+                             transform = "identity")
+par(las = 1, 
+    xaxs = "i", 
+    yaxs = "i")
 # c(bottom, left, top, right)
-oldpar <- par(mfrow = c(2, 2), mar = c(5, 6.1, 3.1, 1))
-sub_title <- c("Age", "Size", "Lymph node status", "HR status")
+oldpar <- par(mfrow = c(2, 2), 
+              mar = c(5, 6.1, 3.1, 1))
+sub_title <- c("Age", 
+               "Size", 
+               "Lymph node status",
+               "HR status")
 for (i in 1:4) {
   plot(
     zp_csc1[i],
     resid = F,
     bty = "n",
-    xlim = c(0, 5)
-  )
+    xlim = c(0, 5))
   abline(0, 0, lty = 3)
   title(sub_title[i])
 }
-mtext("Recurrence", side = 3, line = -1, outer = TRUE, font = 2)
+mtext("Recurrence", 
+      side = 3, 
+      line = -1, 
+      outer = TRUE, 
+      font = 2)
 par(oldpar)
-kable(round(zp_csc1$table, 3)) |>
-  kable_styling("striped", position = "center")
+knitr::kable(round(zp_csc1$table, 3)) %>%
+  kableExtra::kable_styling("striped", 
+                            position = "center")
 ```
 
 </details>
@@ -893,11 +944,18 @@ Click to expand code
 </summary>
 
 ``` r
-zp_csc2 <- cox.zph(fit_csc2, transform = "identity")
-par(las = 1, xaxs = "i", yaxs = "i")
+zp_csc2 <- survival::cox.zph(fit_csc2, 
+                             transform = "identity")
+par(las = 1, 
+    xaxs = "i", 
+    yaxs = "i")
 # c(bottom, left, top, right)
-oldpar <- par(mfrow = c(2, 2), mar = c(5, 6.1, 3.1, 1))
-sub_title <- c("Age", "Size", "Lymph node status", "HR status")
+oldpar <- par(mfrow = c(2, 2), 
+              mar = c(5, 6.1, 3.1, 1))
+sub_title <- c("Age", 
+               "Size", 
+               "Lymph node status", 
+               "HR status")
 for (i in 1:4) {
   plot(
     zp_csc2[i],
@@ -916,8 +974,9 @@ mtext(
   font = 2
 )
 par(oldpar)
-kable(round(zp_csc2$table, 3)) |>
-  kable_styling("striped", position = "center")
+knitr::kable(round(zp_csc2$table, 3)) %>%
+  kableExtra::kable_styling("striped", 
+                            position = "center")
 ```
 
 </details>
@@ -1022,8 +1081,8 @@ mortality. For simplicity we ignore this violation in the remainder.
 
 <p><strong>Cox Proportional Hazards Model</strong></p>
 &#10;<pre>
-cph(formula = Surv(time, status_num == 1) ~ age + size + ncat + 
-    hr_status, data = rdata, x = T, y = T, surv = T)
+rms::cph(formula = Surv(time, status_num == 1) ~ age + size + 
+    ncat + hr_status, data = rdata, x = T, y = T, surv = T)
 </pre>
 &#10;<table class='gmisc_table' style='border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;' >
 <thead>
@@ -1107,8 +1166,8 @@ cph(formula = Surv(time, status_num == 1) ~ age + size + ncat +
 
 <p><strong>Cox Proportional Hazards Model</strong></p>
 &#10;<pre>
-cph(formula = Surv(time, status_num == 2) ~ age + size + ncat + 
-    hr_status, data = rdata, x = T, y = T, surv = T)
+rms::cph(formula = Surv(time, status_num == 2) ~ age + size + 
+    ncat + hr_status, data = rdata, x = T, y = T, surv = T)
 </pre>
 &#10;<table class='gmisc_table' style='border-collapse: collapse; margin-top: 1em; margin-bottom: 1em;' >
 <thead>
@@ -1209,26 +1268,31 @@ Click to expand code
 
 ``` r
 # Models -------------
-fit_csh <- CSC(
-  formula = Hist(time, status_num) ~ age + size + ncat + hr_status,
-  data = rdata
-)
+fit_csh <- riskRegression::CSC(
+  formula = Hist(time, status_num) ~ 
+    age + 
+    size + 
+    ncat + 
+    hr_status,
+  data = rdata)
 
 # External validation at 5 years
 horizon <- 5
 
 # Calculate predicted probabilities
-vdata$pred <- predictRisk(
+vdata$pred <- riskRegression::predictRisk(
   fit_csh,
   cause = 1,
   newdata = vdata,
-  times = horizon
-)
+  times = horizon)
 
 # Age
 oldpar <- par(mfrow = c(2, 2))
-par(xaxs = "i", yaxs = "i", las = 1)
-plot(vdata$age,
+par(xaxs = "i", 
+    yaxs = "i", 
+    las = 1)
+plot(
+  vdata$age,
   vdata$pred,
   bty = "n",
   xlim = c(65, 100),
@@ -1237,13 +1301,16 @@ plot(vdata$age,
   ylab = "Estimated risk"
 )
 lines(
-  lowess(vdata$age, vdata$pred),
+  stats::lowess(vdata$age, 
+                vdata$pred),
   col = "red",
   lwd = 2
 )
 
 # Size
-par(xaxs = "i", yaxs = "i", las = 1)
+par(xaxs = "i", 
+    yaxs = "i", 
+    las = 1)
 plot(
   vdata$size,
   vdata$pred,
@@ -1254,13 +1321,15 @@ plot(
   ylab = "Estimated risk"
 )
 lines(
-  lowess(vdata$size, vdata$pred),
+  stats::lowess(vdata$size, vdata$pred),
   col = "red",
   lwd = 2
 )
 
 # HR status
-par(xaxs = "i", yaxs = "i", las = 1)
+par(xaxs = "i", 
+    yaxs = "i", 
+    las = 1)
 plot(
   vdata$hr_status,
   vdata$pred,
@@ -1271,7 +1340,9 @@ plot(
 )
 
 # Nodal status
-par(xaxs = "i", yaxs = "i", las = 1)
+par(xaxs = "i", 
+    yaxs = "i", 
+    las = 1)
 plot(
   vdata$ncat,
   vdata$pred,
@@ -1332,45 +1403,48 @@ Click to expand code
 
 ``` r
 # Models ----------
-fit_csh <- CSC(Hist(time, status_num) ~
-age + size +
-  ncat + hr_status,
-data = rdata,
-fitter = "cph"
-)
+fit_csh <- riskRegression::CSC(
+  Hist(time, status_num) ~
+    age +
+    size +
+    ncat + 
+    hr_status,
+  data = rdata,
+  fitter = "cph")
 
 # useful objects
 primary_event <- 1 # Set to 2 if cause 2 was of interest
 horizon <- 5 # Set time horizon for prediction (here 5 years)
 
 # Predicted risk estimation
-pred <- predictRisk(fit_csh,
+pred <- riskRegression::predictRisk(
+  fit_csh,
   cause = primary_event,
   times = horizon,
-  newdata = vdata
-)
+  newdata = vdata)
 
 
 # Calibration plot (pseudo-obs approach) ----------------------------------
 # First compute riskRegression::Score()
-score_vdata <- Score(
+score_vdata <- riskRegression::Score(
   list("csh_validation" = fit_csh),
   formula = Hist(time, status_num) ~ 1,
   cens.model = "km",
+  cens.method = c("ipcw", "pseudo"),
   data = vdata,
   conf.int = TRUE,
   times = horizon,
   #  metrics = c("auc", "brier"),
   summary = c("ipa"),
   cause = primary_event,
-  plots = "calibration"
-)
+  plots = "calibration")
 
-calplot_pseudo <- plotCalibration(
+calplot_pseudo <- riskRegression::plotCalibration(
   x = score_vdata,
   brier.in.legend = FALSE,
   auc.in.legend = FALSE,
   cens.method = "pseudo",
+  pseudo = TRUE,
   bandwidth = 0.05, # leave as NULL for default choice of smoothing
   cex = 1,
   round = FALSE, # Important, keeps all unique risk estimates rather than rounding
@@ -1378,8 +1452,7 @@ calplot_pseudo <- plotCalibration(
   ylim = c(0, 0.6),
   rug = TRUE,
   xlab = "Predictions",
-  bty = "n"
-)
+  bty = "n")
 title("Calibration plot using pseudo observations")
 ```
 
@@ -1400,18 +1473,20 @@ Click to expand code
 
 ``` r
 # We can extract predicted and observed, observed will depend on degree of smoothing (bandwidth)
-dat_pseudo <- calplot_pseudo$plotFrames$csh_validation
+dat_pseudo <- calplot_pseudo$plotFrames[[1]]
 
 # Calculate difference between predicted and observed (make sure to use all estimated risks, not just unique ones)
-diff_pseudo <- pred - dat_pseudo$Obs[match(pred, dat_pseudo$Pred)]
+diff_pseudo <- pred - dat_pseudo$Obs[match(pred, 
+                                           dat_pseudo$Pred)]
 
 # Collect all numerical summary measures
 numsum_pseudo <- c(
   "ICI" = mean(abs(diff_pseudo)),
-  setNames(quantile(abs(diff_pseudo), c(0.5, 0.9)), c("E50", "E90")),
+  setNames(quantile(abs(diff_pseudo), 
+                    c(0.5, 0.9)), 
+           c("E50", "E90")),
   "Emax" = max(abs(diff_pseudo)),
-  "Root squared bias" = sqrt(mean(diff_pseudo^2))
-)
+  "Root squared bias" = sqrt(mean(diff_pseudo^2)))
 ```
 
 </details>
@@ -1479,13 +1554,14 @@ Click to expand code
 
 ``` r
 # Models ----------
-fit_csh <- CSC(Hist(time, status_num) ~
-age + size +
-  ncat + hr_status,
-data = rdata,
-fitter = "cph"
-)
-
+fit_csh <- riskRegression::CSC(
+  Hist(time, status_num) ~
+    age + 
+    size +
+    ncat + 
+    hr_status,
+  data = rdata,
+  fitter = "cph")
 
 # useful objects
 primary_event <- 1 # Set to 2 if cause 2 was of interest
@@ -1495,41 +1571,46 @@ horizon <- 5 # Set time horizon for prediction (here 5 years)
 # Calibration plot (flexible regression approach) -------------------------
 
 # Add estimated risk and complementary log-log of it to dataset
-vdata$pred <- predictRisk(fit_csh,
+vdata$pred <- riskRegression::predictRisk(
+  fit_csh,
   cause = primary_event,
   newdata = vdata,
-  times = horizon
-)
+  times = horizon)
+
 vdata$cll_pred <- log(-log(1 - pred))
 
 # 5 knots seems to give somewhat equivalent graph to pseudo method with bw = 0.05
 n_internal_knots <- 5 # Austin et al. advise to use between 3 (more smoothing, less flexible) and 5 (less smoothing, more flexible)
-rcs_vdata <- ns(vdata$cll_pred, df = n_internal_knots + 1)
-colnames(rcs_vdata) <- paste0("basisf_", colnames(rcs_vdata))
-vdata_bis <- cbind.data.frame(vdata, rcs_vdata)
+rcs_vdata <- splines::ns(vdata$cll_pred, 
+                         df = n_internal_knots + 1)
+colnames(rcs_vdata) <- paste0("basisf_", 
+                              colnames(rcs_vdata))
+vdata_bis <- cbind.data.frame(vdata, 
+                              rcs_vdata)
 
 # Use subdistribution hazards (Fine-Gray) model
-form_fgr <- reformulate(
+form_fgr <- stats::reformulate(
   termlabels = colnames(rcs_vdata),
-  response = "Hist(time, status_num)"
-)
+  response = "Hist(time, status_num)")
 
 # Regress subdistribution of event of interest on cloglog of estimated risks
-calib_fgr <- FGR(
+calib_fgr <- riskRegression::FGR(
   formula = form_fgr,
   cause = primary_event,
-  data = vdata_bis
-)
+  data = vdata_bis)
 
 # Add observed and predicted together in a data frame
-dat_fgr <- cbind.data.frame(
-  "obs" = predict(calib_fgr, times = horizon, newdata = vdata_bis),
-  "pred" = vdata$pred
-)
+dat_fgr <- base::cbind.data.frame(
+  "obs" = predict(calib_fgr, 
+                  times = horizon, 
+                  newdata = vdata_bis),
+  "pred" = vdata$pred)
 
 # Calibration plot
 dat_fgr <- dat_fgr[order(dat_fgr$pred), ]
-par(xaxs = "i", yaxs = "i", las = 1)
+par(xaxs = "i", 
+    yaxs = "i", 
+    las = 1)
 plot(
   x = dat_fgr$pred,
   y = dat_fgr$obs,
@@ -1540,14 +1621,15 @@ plot(
   ylab = "Observed outcome proportion",
   bty = "n"
 )
-abline(a = 0, b = 1, lty = "dashed", col = "red")
+abline(a = 0, 
+       b = 1, 
+       lty = "dashed", 
+       col = "red")
 title("Calibration plot using subdistribution hazard approach", 
       cex.main = .90)
 ```
 
 </details>
-
-    ## [1] "basisf_1" "basisf_2" "basisf_3" "basisf_4" "basisf_5" "basisf_6"
 
 <img src="imgs/Prediction_CSC/plot_sd-1.png" width="480" style="display: block; margin: auto;" />
 
@@ -1571,7 +1653,9 @@ diff_fgr <- dat_fgr$pred - dat_fgr$obs
 
 numsum_fgr <- c(
   "ICI" = mean(abs(diff_fgr)),
-  setNames(quantile(abs(diff_fgr), c(0.5, 0.9)), c("E50", "E90")),
+  setNames(quantile(abs(diff_fgr), 
+                    c(0.5, 0.9)),
+           c("E50", "E90")),
   "Emax" = max(abs(diff_fgr)),
   "Root squared bias" = sqrt(mean(diff_fgr^2))
 )
@@ -1642,9 +1726,11 @@ pseudos <- pseudos[order(pseudos$risk), ]
 
 # Use linear loess (weighted local regression with polynomial degree = 1) smoothing
 smooth_pseudos <- predict(
-  stats::loess(pseudovalue ~ risk, data = pseudos, degree = 1, span = 0.33), 
-  se = TRUE
-)
+  stats::loess(pseudovalue ~ risk, 
+               data = pseudos, 
+               degree = 1, 
+               span = 0.33), 
+  se = TRUE)
 
 # Calibration plot (reported in manuscript):
 
@@ -1668,9 +1754,10 @@ plot(
   frame.plot = FALSE,
   xlab = "Estimated risks",
   ylab = "Observed outcome proportions", 
-  type = "n"
-)
-axis(2, seq(0, 0.6, by = 0.1), labels = seq(0, 0.6, by = 0.1))
+  type = "n")
+axis(2, 
+     seq(0, 0.6, by = 0.1), 
+     labels = seq(0, 0.6, by = 0.1))
 polygon(
   x = c(pseudos$risk, rev(pseudos$risk)),
   y = c(
@@ -1680,8 +1767,12 @@ polygon(
   border = FALSE,
   col = "lightgray"
 )
-abline(a = 0, b = 1, col = "gray")
-lines(x = pseudos$risk, y = smooth_pseudos$fit, lwd = 2)
+abline(a = 0, 
+       b = 1, 
+       col = "gray")
+lines(x = pseudos$risk, 
+      y = smooth_pseudos$fit, 
+      lwd = 2)
 segments(
   x0 = bins[freqs > 0], 
   y0 = spike_bounds[1], 
@@ -1703,38 +1794,37 @@ Click to expand code
 
 ``` r
 # Models ----------
-fit_csh <- CSC(Hist(time, status_num) ~
-age + size +
-  ncat + hr_status,
-data = rdata,
-fitter = "cph"
-)
-
+fit_csh <- riskRegression::CSC(
+  Hist(time, status_num) ~
+    age + 
+    size +
+    ncat + 
+    hr_status,
+  data = rdata,
+  fitter = "cph")
 
 # useful objects
 primary_event <- 1 # Set to 2 if cause 2 was of interest
 horizon <- 5 # Set time horizon for prediction (here 5 years)
 
 # Add estimated risk and complementary log-log of it to dataset
-pred <- predictRisk(fit_csh,
+pred <- riskRegression::predictRisk(
+  fit_csh,
   cause = primary_event,
   newdata = vdata,
-  times = horizon
-)
+  times = horizon)
 
 ## Observed/Expected ratio --------------------------------------------
 # First calculate Aalen-Johansen estimate (as 'observed')
-obj <- summary(survfit(Surv(time, status) ~ 1,
-  data = vdata
-),
-times = horizon
-)
+obj <- summary(survfit(
+  Surv(time, status) ~ 1,
+  data = vdata),
+  times = horizon)
 
 aj <- list(
   "obs" = obj$pstate[, primary_event + 1],
   "se" = obj$std.err[, primary_event + 1]
 )
-
 
 # Calculate O/E
 OE <- aj$obs / mean(pred)
@@ -1742,19 +1832,20 @@ OE <- aj$obs / mean(pred)
 # For the confidence interval we use method proposed in Debray et al. (2017) doi:10.1136/bmj.i6460
 k <- 2
 alpha <- 0.05
-OE_summary <- cbind(
+OE_summary <- base::cbind(
   "OE" = OE,
   "Lower .95" = exp(log(OE) - qnorm(1 - alpha / 2) * aj$se / aj$obs),
-  "Upper .95" = exp(log(OE) + qnorm(1 - alpha / 2) * aj$se / aj$obs)
-)
+  "Upper .95" = exp(log(OE) + qnorm(1 - alpha / 2) * aj$se / aj$obs))
 
-OE_summary <- round(OE_summary, k)
+OE_summary <- base::round(OE_summary, k)
 ```
 
 </details>
 <table class="table table-striped" style="margin-left: auto; margin-right: auto;">
 <thead>
 <tr>
+<th style="text-align:left;">
+</th>
 <th style="text-align:right;">
 OE
 </th>
@@ -1768,6 +1859,9 @@ Upper .95
 </thead>
 <tbody>
 <tr>
+<td style="text-align:left;">
+rec
+</td>
 <td style="text-align:right;">
 0.81
 </td>
@@ -1793,40 +1887,41 @@ Click to expand code
 
 ``` r
 # Models ----------
-fit_csh <- CSC(Hist(time, status_num) ~
-age + size +
-  ncat + hr_status,
-data = rdata,
-fitter = "cph"
-)
-
+fit_csh <- riskRegression::CSC(
+  Hist(time, status_num) ~
+    age + 
+    size +
+    ncat + 
+    hr_status,
+  data = rdata,
+  fitter = "cph")
 
 # useful objects
 primary_event <- 1 # Set to 2 if cause 2 was of interest
 horizon <- 5 # Set time horizon for prediction (here 5 years)
 
 # Predicted risk estimation
-pred <- predictRisk(fit_csh,
+pred <- riskRegression::predictRisk(
+  fit_csh,
   cause = primary_event,
   times = horizon,
-  newdata = vdata
-)
+  newdata = vdata)
 
 
 # Calibration plot (pseudo-obs approach) ----------------------------------
 # First compute riskRegression::Score()
-score_vdata <- Score(
+score_vdata <- riskRegression::Score(
   list("csh_validation" = fit_csh),
   formula = Hist(time, status_num) ~ 1,
   cens.model = "km",
+  cens.method = c("ipcw", "pseudo"),
   data = vdata,
   conf.int = TRUE,
   times = horizon,
   #  metrics = c("auc", "brier"),
   summary = c("ipa"),
   cause = primary_event,
-  plots = "calibration"
-)
+  plots = "calibration")
 
 
 ## Calibration intercept and slope --------------------------------------
@@ -1840,28 +1935,26 @@ pseudos <- data.frame(score_vdata$Calibration$plotframe)
 pseudos$cll_pred <- log(-log(1 - pseudos$risk)) # add the cloglog risk ests
 
 # Fit model for calibration intercept
-fit_cal_int <- geese(
+fit_cal_int <- geepack::geese(
   pseudovalue ~ offset(cll_pred),
   data = pseudos,
-  id = ID,
+  id = riskRegression_ID,
   scale.fix = TRUE,
   family = gaussian,
   mean.link = "cloglog",
   corstr = "independence",
-  jack = TRUE
-)
+  jack = TRUE)
 
 # Fit model for calibration slope
-fit_cal_slope <- geese(
+fit_cal_slope <- geepack::geese(
   pseudovalue ~ offset(cll_pred) + cll_pred,
   data = pseudos,
-  id = ID,
+  id = riskRegression_ID,
   scale.fix = TRUE,
   family = gaussian,
   mean.link = "cloglog",
   corstr = "independence",
-  jack = TRUE
-)
+  jack = TRUE)
 
 # Perform joint test on intercept and slope
 betas <- fit_cal_slope$beta
@@ -1949,12 +2042,14 @@ Click to expand code
 
 ``` r
 # Models
-fit_csh <- CSC(Hist(time, status_num) ~
-age + size +
-  ncat + hr_status,
-data = rdata,
-fitter = "cph"
-)
+fit_csh <- riskRegression::CSC(
+  Hist(time, status_num) ~
+    age + 
+    size +
+    ncat + 
+    hr_status,
+  data = rdata,
+  fitter = "cph")
 
 # useful objects
 primary_event <- 1 # Set to 2 if cause 2 was of interest
@@ -1985,8 +2080,11 @@ C_vdata <- pec::cindex(
 
 B <- 100
 set.seed(1234)
-rboot <- bootstraps(rdata, times = B) # development - bootstrap
-vboot <- bootstraps(vdata, times = B) # validation - bootstrap
+rboot <- rsample::bootstraps(rdata, 
+                             times = B) # development - bootstrap
+
+vboot <- rsample::bootstraps(vdata, 
+                             times = B) # validation - bootstrap
 
 C_boot <- function(split) {
   pec::cindex(
@@ -2000,41 +2098,42 @@ C_boot <- function(split) {
 
 # Run time-dependent AUC in the bootstrapped development and validation data
 # to calculate the non-parametric CI through percentile bootstrap
-rboot <- rboot |> mutate(
-  C_rboot = map_dbl(splits, C_boot),
-)
-vboot <- vboot |> mutate(
-  C_vboot = map_dbl(splits, C_boot),
-)
+rboot <- rboot %>% 
+  dplyr::mutate(
+    C_rboot = purrr::map_dbl(splits, C_boot))
+
+vboot <- vboot %>% 
+  dplyr::mutate(
+    C_vboot = purrr::map_dbl(splits, C_boot))
 
 
 # Time-dependent AUC ---------
 
 # Development data
-score_rdata <- Score(
+score_rdata <- riskRegression::Score(
   list("csh_development" = fit_csh),
   formula = Hist(time, status_num) ~ 1,
   cens.model = "km",
+  cens.method = c("ipcw", "pseudo"),
   data = rdata,
   conf.int = TRUE,
   times = horizon,
   metrics = c("auc"),
   cause = primary_event,
-  plots = "calibration"
-)
+  plots = "calibration")
 
 # Validation data
-score_vdata <- Score(
+score_vdata <- riskRegression::Score(
   list("csh_validation" = fit_csh),
   formula = Hist(time, status_num) ~ 1,
   cens.model = "km",
+  cens.method = c("ipcw", "pseudo"),
   data = vdata,
   conf.int = TRUE,
   times = horizon,
   metrics = c("auc"),
   cause = primary_event,
-  plots = "calibration"
-)
+  plots = "calibration")
 ```
 
 </details>
@@ -2149,42 +2248,48 @@ Click to expand code
 
 ``` r
 # Models --------------
-fit_csh <- CSC(Hist(time, status_num) ~
-age + size +
-  ncat + hr_status,
-data = rdata,
-fitter = "cph"
-)
+fit_csh <- riskRegression::CSC(
+  Hist(time, status_num) ~
+    age +
+    size +
+    ncat + 
+    hr_status,
+  data = rdata,
+  fitter = "cph")
+
 primary_event <- 1 # Set to 2 if cause 2 was of interest
 
 # AUCs development data
-AUC_rdata <- Score(
+AUC_rdata <- riskRegression::Score(
   list("csh_development" = fit_csh),
   formula = Hist(time, status_num) ~ 1,
   cens.model = "km",
+  cens.method = c("ipcw", "pseudo"),
   data = rdata,
   conf.int = TRUE,
   times = seq(0.4, 5.1, 0.2),
   metrics = c("auc"),
-  cause = primary_event
-)
+  cause = primary_event)
 
 # AUCs validation data
-AUC_vdata <- Score(
+AUC_vdata <- riskRegression::Score(
   list("csh_validation" = fit_csh),
   formula = Hist(time, status_num) ~ 1,
   cens.model = "km",
+  cens.method = c("ipcw", "pseudo"),
   data = vdata,
   conf.int = TRUE,
   times = seq(0.5, 5.01, 0.1),
   metrics = c("auc"),
-  cause = primary_event
-)
+  cause = primary_event)
 
 # Plot
-par(las = 1, xaxs = "i", yaxs = "i")
+par(las = 1, 
+    xaxs = "i", 
+    yaxs = "i")
 oldpar <- par(mfrow = c(1, 2))
-plot(AUC_rdata$times,
+plot(
+  AUC_rdata$times,
   AUC_rdata$AUC$score$AUC,
   type = "l",
   bty = "n",
@@ -2203,10 +2308,12 @@ c(
   AUC_rdata$AUC$score$lower,
   rev(AUC_rdata$AUC$score$upper)
 ),
-col = rgb(160, 160, 160, maxColorValue = 255, alpha = 100),
-border = FALSE
-)
-lines(AUC_rdata$times,
+col = rgb(160, 160, 160, 
+          maxColorValue = 255, 
+          alpha = 100),
+border = FALSE)
+lines(
+  AUC_rdata$times,
   AUC_rdata$AUC$score$AUC,
   col = "black",
   lwd = 2,
@@ -2215,7 +2322,8 @@ lines(AUC_rdata$times,
 title("Development data", adj = 0)
 
 # Validation data
-plot(AUC_vdata$times,
+plot(
+  AUC_vdata$times,
   AUC_vdata$AUC$score$AUC,
   type = "l",
   bty = "n",
@@ -2234,10 +2342,12 @@ c(
   AUC_vdata$AUC$score$lower,
   rev(AUC_vdata$AUC$score$upper)
 ),
-col = rgb(160, 160, 160, maxColorValue = 255, alpha = 100),
-border = FALSE
-)
-lines(AUC_vdata$times,
+col = rgb(160, 160, 160, 
+          maxColorValue = 255, 
+          alpha = 100),
+border = FALSE)
+lines(
+  AUC_vdata$times,
   AUC_vdata$AUC$score$AUC,
   col = "black",
   lwd = 2,
@@ -2265,12 +2375,14 @@ Click to expand code
 source(here::here("R/roystonD.R"))
 
 # Models ----------
-fit_csh <- CSC(Hist(time, status_num) ~
-age + size +
-  ncat + hr_status,
-data = rdata,
-fitter = "cph"
-)
+fit_csh <- riskRegression::CSC(
+  Hist(time, status_num) ~
+    age + 
+    size +
+    ncat + 
+    hr_status,
+  data = rdata,
+  fitter = "cph")
 
 
 # useful objects
@@ -2278,29 +2390,29 @@ primary_event <- 1 # Set to 2 if cause 2 was of interest
 horizon <- 5 # Set time horizon for prediction (here 5 years)
 
 # Predicted risk estimation
-rdata$pred <- predictRisk(fit_csh,
+rdata$pred <- riskRegression::predictRisk(
+  fit_csh,
   cause = primary_event,
   times = horizon,
-  newdata = rdata
-)
+  newdata = rdata)
 
-vdata$pred <- predictRisk(fit_csh,
+vdata$pred <- riskRegression::predictRisk(
+  fit_csh,
   cause = primary_event,
   times = horizon,
-  newdata = vdata
-)
+  newdata = vdata)
 
 # Rank based on predicted values at 5 years
 
-rdata$rank <- rank(rdata$pred,
+rdata$rank <- base::rank(
+  rdata$pred,
   na.last = TRUE,
-  ties.method = "first"
-)
+  ties.method = "first")
 
-vdata$rank <- rank(vdata$pred,
+vdata$rank <- base::rank(
+  vdata$pred,
   na.last = TRUE,
-  ties.method = "first"
-)
+  ties.method = "first")
 
 
 res_rdata <- royston_R2D_cmprsk(
@@ -2399,12 +2511,14 @@ Click to expand code
 
 ``` r
 # Models -------------------
-fit_csh <- CSC(Hist(time, status_num) ~
-age + size +
-  ncat + hr_status,
-data = rdata,
-fitter = "cph"
-)
+fit_csh <- riskRegression::CSC(
+  Hist(time, status_num) ~
+    age + 
+    size +
+    ncat + 
+    hr_status,
+  data = rdata,
+  fitter = "cph")
 fit_csc1 <- fit_csh$models$`Cause 1`
 fit_csc2 <- fit_csh$models$`Cause 2`
 
@@ -2413,32 +2527,32 @@ primary_event <- 1 # Set to 2 if cause 2 was of interest
 horizon <- 5 # Set time horizon for prediction (here 5 years)
 
 # Development data
-score_rdata <- Score(
+score_rdata <- riskRegression::Score(
   list("csh_development" = fit_csh),
   formula = Hist(time, status_num) ~ 1,
   cens.model = "km",
+  cens.method = c("ipcw", "pseudo"),
   data = rdata,
   conf.int = TRUE,
   times = horizon,
   metrics = c("auc", "brier"),
   summary = c("ipa"),
   cause = primary_event,
-  plots = "calibration"
-)
+  plots = "calibration")
 
 # Validation data
-score_vdata <- Score(
+score_vdata <- riskRegression::Score(
   list("csh_validation" = fit_csh),
   formula = Hist(time, status_num) ~ 1,
   cens.model = "km",
+  cens.method = c("ipcw", "pseudo"),
   data = vdata,
   conf.int = TRUE,
   times = horizon,
   metrics = c("auc", "brier"),
   summary = c("ipa"),
   cause = primary_event,
-  plots = "calibration"
-)
+  plots = "calibration")
 
 # Bootstrap ------
 # Functions to expand data and calculate Brier, IPA and AUC in bootstrap
@@ -2452,34 +2566,36 @@ score_vdata <- Score(
 
 # Score functions in any bootstrap data
 score_boot <- function(split) {
-  Score(
+  riskRegression::Score(
     list("csh_validation" = fit_csh),
     formula = Hist(time, status_num) ~ 1,
     cens.model = "km",
+    cens.method = c("ipcw", "pseudo"),
     data = analysis(split),
     conf.int = TRUE,
     times = horizon,
     metrics = c("auc", "brier"),
     summary = c("ipa"),
     cause = primary_event,
-    plots = "calibration"
-  )
+    plots = "calibration")
 }
 
 # Development data
-rboot <- rboot |> mutate(
-  score = map(splits, score_boot),
-  scaled_brier = map_dbl(score, function(x) {
-    x$Brier$score[model == "csh_validation"]$IPA
-  })
-)
+rboot <- rboot %>%
+  dplyr::mutate(
+    score = purrr::map(splits, 
+                       score_boot),
+    scaled_brier = purrr::map_dbl(score, 
+                                  function(x) {
+                                    x$Brier$score[model == "csh_validation"]$IPA}))
 # Validation data
-vboot <- vboot |> mutate(
-  score = map(splits, score_boot),
-  scaled_brier = map_dbl(score, function(x) {
-    x$Brier$score[model == "csh_validation"]$IPA
-  })
-)
+vboot <- vboot %>% 
+  dplyr::mutate(
+    score = purrr::map(splits, 
+                       score_boot),
+    scaled_brier = purrr::map_dbl(score, 
+                                  function(x) {
+                                    x$Brier$score[model == "csh_validation"]$IPA}))
 ```
 
 </details>
@@ -2601,12 +2717,14 @@ Click to expand code
 source(here::here("R/stdca.R"))
 
 # Models ------------------------------
-fit_csh <- CSC(Hist(time, status_num) ~
-age + size +
-  ncat + hr_status,
-data = rdata,
-fitter = "cph"
-)
+fit_csh <- riskRegression::CSC(
+  Hist(time, status_num) ~
+    age + 
+    size +
+    ncat + 
+    hr_status,
+  data = rdata,
+  fitter = "cph")
 
 # useful objects
 primary_event <- 1 # Set to 2 if cause 2 was of interest
@@ -2614,11 +2732,12 @@ horizon <- 5 # Set time horizon for prediction (here 5 years)
 
 # Development data
 # calculation estimated risk
-rdata$pred5 <- predictRisk(fit_csh,
+rdata$pred5 <- riskRegression::predictRisk(
+  fit_csh,
   cause = primary_event,
   newdata = rdata,
-  times = horizon
-)
+  times = horizon)
+
 rdata <- as.data.frame(rdata)
 dca_rdata <- stdca(
   data = rdata,
@@ -2629,17 +2748,16 @@ dca_rdata <- stdca(
   xstop = 0.35,
   ymin = -0.01,
   graph = FALSE,
-  cmprsk = TRUE
-)
+  cmprsk = TRUE)
 # Decision curves plot
 oldpar <- par(
   xaxs = "i",
   yaxs = "i",
   las = 1,
   mar = c(6.1, 5.8, 4.1, 2.1),
-  mgp = c(4.25, 1, 0)
-)
-plot(dca_rdata$net.benefit$threshold,
+  mgp = c(4.25, 1, 0))
+plot(
+  dca_rdata$net.benefit$threshold,
   dca_rdata$net.benefit$pred5,
   type = "l",
   lwd = 2,
@@ -2649,31 +2767,38 @@ plot(dca_rdata$net.benefit$threshold,
   xlim = c(0, 0.5),
   ylim = c(-0.10, 0.10),
   bty = "n",
-  xaxt = "n"
-)
+  xaxt = "n")
 legend("topright",
-  c("Treat all", "Treat none", "Prediction model"),
+  c("Treat all", 
+    "Treat none", 
+    "Prediction model"),
   lwd = c(2, 2, 2),
   lty = c(1, 2, 1),
-  col = c("darkgray", "black", "black"),
+  col = c("darkgray", 
+          "black", 
+          "black"),
   bty = "n"
 )
-lines(dca_rdata$net.benefit$threshold,
+lines(
+  dca_rdata$net.benefit$threshold,
   dca_rdata$net.benefit$none,
   type = "l",
   lwd = 2,
   lty = 4
 )
-lines(dca_rdata$net.benefit$threshold,
+lines(
+  dca_rdata$net.benefit$threshold,
   dca_rdata$net.benefit$all,
   type = "l",
   lwd = 2,
   col = "darkgray"
 )
-axis(1,
+axis(
+  1,
   at = c(0, 0.1, 0.2, 0.3, 0.4, 0.5)
 )
-axis(1,
+axis(
+  1,
   pos = -0.145,
   at = c(0.1, 0.2, 0.3, 0.4, 0.5),
   labels = c("1:9", "1:4", "3:7", "2:3", "1:1")
@@ -2686,7 +2811,8 @@ par(oldpar)
 
 # Validation data
 # Predicted probability calculation
-vdata$pred5 <- predictRisk(fit_csh,
+vdata$pred5 <- riskRegression::predictRisk(
+  fit_csh,
   cause = primary_event,
   newdata = vdata,
   times = horizon
@@ -2714,7 +2840,8 @@ oldpar <- par(
   mar = c(6.1, 5.8, 4.1, 2.1),
   mgp = c(4.25, 1, 0)
 )
-plot(dca_vdata$net.benefit$threshold,
+plot(
+  dca_vdata$net.benefit$threshold,
   dca_vdata$net.benefit$pred5,
   type = "l",
   lwd = 2,
@@ -2726,33 +2853,35 @@ plot(dca_vdata$net.benefit$threshold,
   bty = "n",
   xaxt = "n"
 )
-lines(dca_vdata$net.benefit$threshold,
+lines(
+  dca_vdata$net.benefit$threshold,
   dca_vdata$net.benefit$none,
   type = "l",
   lwd = 2,
-  lty = 4
-)
-lines(dca_vdata$net.benefit$threshold,
+  lty = 4)
+lines(
+  dca_vdata$net.benefit$threshold,
   dca_vdata$net.benefit$all,
   type = "l",
   lwd = 2,
-  col = "darkgray"
-)
-legend("topright",
-  c("Treat all", "Treat none", "Prediction model"),
+  col = "darkgray")
+legend(
+  "topright",
+  c("Treat all", 
+    "Treat none", 
+    "Prediction model"),
   lwd = c(2, 2, 2),
   lty = c(1, 2, 1),
   col = c("darkgray", "black", "black"),
-  bty = "n"
-)
-axis(1,
-  at = c(0, 0.1, 0.2, 0.3, 0.4, 0.5)
-)
-axis(1,
+  bty = "n")
+axis(
+  1,
+  at = c(0, 0.1, 0.2, 0.3, 0.4, 0.5))
+axis(
+  1,
   pos = -0.145,
   at = c(0.1, 0.2, 0.3, 0.4, 0.5),
-  labels = c("1:9", "1:4", "3:7", "2:3", "1:1")
-)
+  labels = c("1:9", "1:4", "3:7", "2:3", "1:1"))
 mtext("Threshold probability", 1, line = 2)
 mtext("Harm to benefit ratio", 1, line = 5)
 title("Validation data")
@@ -2761,898 +2890,7 @@ par(oldpar)
 
 </details>
 
-    ## [1] "time points competing risks"
-    ## [1] 0.1350657
-    ## [1] "nb"
-    ##    threshold cuminc_given_pred_pos ppcr          all none total_obs
-    ## 1       0.01                    NA   NA  0.126328949    0      1000
-    ## 2       0.02                    NA   NA  0.117413938    0      1000
-    ## 3       0.03                    NA   NA  0.108315112    0      1000
-    ## 4       0.04                    NA   NA  0.099026728    0      1000
-    ## 5       0.05                    NA   NA  0.089542799    0      1000
-    ## 6       0.06                    NA   NA  0.079857084    0      1000
-    ## 7       0.07                    NA   NA  0.069963074    0      1000
-    ## 8       0.08                    NA   NA  0.059853977    0      1000
-    ## 9       0.09                    NA   NA  0.049522702    0      1000
-    ## 10      0.10                    NA   NA  0.038961843    0      1000
-    ## 11      0.11                    NA   NA  0.028163662    0      1000
-    ## 12      0.12                    NA   NA  0.017120067    0      1000
-    ## 13      0.13                    NA   NA  0.005822597    0      1000
-    ## 14      0.14                    NA   NA -0.005737606    0      1000
-    ## 15      0.15                    NA   NA -0.017569813    0      1000
-    ## 16      0.16                    NA   NA -0.029683739    0      1000
-    ## 17      0.17                    NA   NA -0.042089567    0      1000
-    ## 18      0.18                    NA   NA -0.054797977    0      1000
-    ## 19      0.19                    NA   NA -0.067820174    0      1000
-    ## 20      0.20                    NA   NA -0.081167926    0      1000
-    ## 21      0.21                    NA   NA -0.094853596    0      1000
-    ## 22      0.22                    NA   NA -0.108890181    0      1000
-    ## 23      0.23                    NA   NA -0.123291352    0      1000
-    ## 24      0.24                    NA   NA -0.138071501    0      1000
-    ## 25      0.25                    NA   NA -0.153245788    0      1000
-    ## 26      0.26                    NA   NA -0.168830190    0      1000
-    ## 27      0.27                    NA   NA -0.184841563    0      1000
-    ## 28      0.28                    NA   NA -0.201297696    0      1000
-    ## 29      0.29                    NA   NA -0.218217382    0      1000
-    ## 30      0.30                    NA   NA -0.235620487    0      1000
-    ## 31      0.31                    NA   NA -0.253528030    0      1000
-    ## 32      0.32                    NA   NA -0.271962266    0      1000
-    ## 33      0.33                    NA   NA -0.290946777    0      1000
-    ## 34      0.34                    NA   NA -0.310506577    0      1000
-    ## 35      0.35                    NA   NA -0.330668217    0      1000
-    ## [1] "probability threshold"
-    ## [1] 0.01
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.1350657
-    ## 1 2 0.2041675
-    ## [1] "pdgivenx"
-    ## [1] 0.1350657
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.1350657
-    ## [1] "probability threshold"
-    ## [1] 0.02
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.1350657
-    ## 1 2 0.2041675
-    ## [1] "pdgivenx"
-    ## [1] 0.1350657
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.1350657
-    ## [1] "probability threshold"
-    ## [1] 0.03
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.1350657
-    ## 1 2 0.2041675
-    ## [1] "pdgivenx"
-    ## [1] 0.1350657
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.1350657
-    ## [1] "probability threshold"
-    ## [1] 0.04
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.1350657
-    ## 1 2 0.2041675
-    ## [1] "pdgivenx"
-    ## [1] 0.1350657
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.1350657
-    ## [1] "probability threshold"
-    ## [1] 0.05
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.1350657
-    ## 1 2 0.2041675
-    ## [1] "pdgivenx"
-    ## [1] 0.1350657
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.1350657
-    ## [1] "probability threshold"
-    ## [1] 0.06
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.1346043
-    ## 1 2 0.2049882
-    ## [1] "pdgivenx"
-    ## [1] 0.1346043
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.1346043
-    ## [1] "probability threshold"
-    ## [1] 0.07
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.1464244
-    ## 1 2 0.2186049
-    ## [1] "pdgivenx"
-    ## [1] 0.1464244
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.1464244
-    ## [1] "probability threshold"
-    ## [1] 0.08
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.1541463
-    ## 1 2 0.2300256
-    ## [1] "pdgivenx"
-    ## [1] 0.1541463
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.1541463
-    ## [1] "probability threshold"
-    ## [1] 0.09
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.1658169
-    ## 1 2 0.2342838
-    ## [1] "pdgivenx"
-    ## [1] 0.1658169
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.1658169
-    ## [1] "probability threshold"
-    ## [1] 0.1
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.1736909
-    ## 1 2 0.2350052
-    ## [1] "pdgivenx"
-    ## [1] 0.1736909
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.1736909
-    ## [1] "probability threshold"
-    ## [1] 0.11
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.1656011
-    ## 1 2 0.2476245
-    ## [1] "pdgivenx"
-    ## [1] 0.1656011
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.1656011
-    ## [1] "probability threshold"
-    ## [1] 0.12
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.1753155
-    ## 1 2 0.2488608
-    ## [1] "pdgivenx"
-    ## [1] 0.1753155
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.1753155
-    ## [1] "probability threshold"
-    ## [1] 0.13
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.1901552
-    ## 1 2 0.2536215
-    ## [1] "pdgivenx"
-    ## [1] 0.1901552
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.1901552
-    ## [1] "probability threshold"
-    ## [1] 0.14
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.2006602
-    ## 1 2 0.2667778
-    ## [1] "pdgivenx"
-    ## [1] 0.2006602
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.2006602
-    ## [1] "probability threshold"
-    ## [1] 0.15
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.2076908
-    ## 1 2 0.2581649
-    ## [1] "pdgivenx"
-    ## [1] 0.2076908
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.2076908
-    ## [1] "probability threshold"
-    ## [1] 0.16
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.2178900
-    ## 1 2 0.2586805
-    ## [1] "pdgivenx"
-    ## [1] 0.21789
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.21789
-    ## [1] "probability threshold"
-    ## [1] 0.17
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.2323870
-    ## 1 2 0.2862026
-    ## [1] "pdgivenx"
-    ## [1] 0.232387
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.232387
-    ## [1] "probability threshold"
-    ## [1] 0.18
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.2425417
-    ## 1 2 0.2634340
-    ## [1] "pdgivenx"
-    ## [1] 0.2425417
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.2425417
-    ## [1] "probability threshold"
-    ## [1] 0.19
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.2544379
-    ## 1 2 0.2603550
-    ## [1] "pdgivenx"
-    ## [1] 0.2544379
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.2544379
-    ## [1] "probability threshold"
-    ## [1] 0.2
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.2624113
-    ## 1 2 0.2836879
-    ## [1] "pdgivenx"
-    ## [1] 0.2624113
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.2624113
-    ## [1] "probability threshold"
-    ## [1] 0.21
-    ## [1] "time points by threshold"
-    ##         5
-    ## 1 1 0.296
-    ## 1 2 0.296
-    ## [1] "pdgivenx"
-    ## [1] 0.296
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.296
-    ## [1] "probability threshold"
-    ## [1] 0.22
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.3211009
-    ## 1 2 0.3119266
-    ## [1] "pdgivenx"
-    ## [1] 0.3211009
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.3211009
-    ## [1] "probability threshold"
-    ## [1] 0.23
-    ## [1] "time points by threshold"
-    ##        5
-    ## 1 1 0.33
-    ## 1 2 0.31
-    ## [1] "pdgivenx"
-    ## [1] 0.33
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.33
-    ## [1] "probability threshold"
-    ## [1] 0.24
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.3333333
-    ## 1 2 0.3218391
-    ## [1] "pdgivenx"
-    ## [1] 0.3333333
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.3333333
-    ## [1] "probability threshold"
-    ## [1] 0.25
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.3417722
-    ## 1 2 0.3164557
-    ## [1] "pdgivenx"
-    ## [1] 0.3417722
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.3417722
-    ## [1] "probability threshold"
-    ## [1] 0.26
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.3611111
-    ## 1 2 0.3194444
-    ## [1] "pdgivenx"
-    ## [1] 0.3611111
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.3611111
-    ## [1] "probability threshold"
-    ## [1] 0.27
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.3859649
-    ## 1 2 0.2807018
-    ## [1] "pdgivenx"
-    ## [1] 0.3859649
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.3859649
-    ## [1] "probability threshold"
-    ## [1] 0.28
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.3469388
-    ## 1 2 0.3061224
-    ## [1] "pdgivenx"
-    ## [1] 0.3469388
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.3469388
-    ## [1] "probability threshold"
-    ## [1] 0.29
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.3409091
-    ## 1 2 0.2954545
-    ## [1] "pdgivenx"
-    ## [1] 0.3409091
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.3409091
-    ## [1] "probability threshold"
-    ## [1] 0.3
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.3421053
-    ## 1 2 0.3157895
-    ## [1] "pdgivenx"
-    ## [1] 0.3421053
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.3421053
-    ## [1] "probability threshold"
-    ## [1] 0.31
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.3225806
-    ## 1 2 0.3548387
-    ## [1] "pdgivenx"
-    ## [1] 0.3225806
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.3225806
-    ## [1] "probability threshold"
-    ## [1] 0.32
-    ## [1] "time points by threshold"
-    ##        5
-    ## 1 1 0.40
-    ## 1 2 0.32
-    ## [1] "pdgivenx"
-    ## [1] 0.4
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.4
-    ## [1] "probability threshold"
-    ## [1] 0.33
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.4166667
-    ## 1 2 0.2916667
-    ## [1] "pdgivenx"
-    ## [1] 0.4166667
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.4166667
-    ## [1] "probability threshold"
-    ## [1] 0.34
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.4761905
-    ## 1 2 0.2380952
-    ## [1] "pdgivenx"
-    ## [1] 0.4761905
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.4761905
-    ## [1] "probability threshold"
-    ## [1] 0.35
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.4117647
-    ## 1 2 0.2352941
-    ## [1] "pdgivenx"
-    ## [1] 0.4117647
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.4117647
-
-<img src="imgs/Prediction_CSC/dca-1.png" width="672" style="display: block; margin: auto;" />
-
-    ## [1] "time points competing risks"
-    ## [1] 0.1032066
-    ## [1] "nb"
-    ##    threshold cuminc_given_pred_pos ppcr          all none total_obs
-    ## 1       0.01                    NA   NA  0.094148101    0      1000
-    ## 2       0.02                    NA   NA  0.084904715    0      1000
-    ## 3       0.03                    NA   NA  0.075470743    0      1000
-    ## 4       0.04                    NA   NA  0.065840229    0      1000
-    ## 5       0.05                    NA   NA  0.056006969    0      1000
-    ## 6       0.06                    NA   NA  0.045964490    0      1000
-    ## 7       0.07                    NA   NA  0.035706043    0      1000
-    ## 8       0.08                    NA   NA  0.025224587    0      1000
-    ## 9       0.09                    NA   NA  0.014512770    0      1000
-    ## 10      0.10                    NA   NA  0.003562911    0      1000
-    ## 11      0.11                    NA   NA -0.007633011    0      1000
-    ## 12      0.12                    NA   NA -0.019083386    0      1000
-    ## 13      0.13                    NA   NA -0.030796988    0      1000
-    ## 14      0.14                    NA   NA -0.042783000    0      1000
-    ## 15      0.15                    NA   NA -0.055051035    0      1000
-    ## 16      0.16                    NA   NA -0.067611166    0      1000
-    ## 17      0.17                    NA   NA -0.080473951    0      1000
-    ## 18      0.18                    NA   NA -0.093650463    0      1000
-    ## 19      0.19                    NA   NA -0.107152321    0      1000
-    ## 20      0.20                    NA   NA -0.120991725    0      1000
-    ## 21      0.21                    NA   NA -0.135181493    0      1000
-    ## 22      0.22                    NA   NA -0.149735102    0      1000
-    ## 23      0.23                    NA   NA -0.164666727    0      1000
-    ## 24      0.24                    NA   NA -0.179991289    0      1000
-    ## 25      0.25                    NA   NA -0.195724506    0      1000
-    ## 26      0.26                    NA   NA -0.211882946    0      1000
-    ## 27      0.27                    NA   NA -0.228484082    0      1000
-    ## 28      0.28                    NA   NA -0.245546361    0      1000
-    ## 29      0.29                    NA   NA -0.263089267    0      1000
-    ## 30      0.30                    NA   NA -0.281133400    0      1000
-    ## 31      0.31                    NA   NA -0.299700550    0      1000
-    ## 32      0.32                    NA   NA -0.318813794    0      1000
-    ## 33      0.33                    NA   NA -0.338497582    0      1000
-    ## 34      0.34                    NA   NA -0.358777848    0      1000
-    ## 35      0.35                    NA   NA -0.379682123    0      1000
-    ## 36      0.36                    NA   NA -0.401239656    0      1000
-    ## 37      0.37                    NA   NA -0.423481555    0      1000
-    ## 38      0.38                    NA   NA -0.446440935    0      1000
-    ## 39      0.39                    NA   NA -0.470153082    0      1000
-    ## 40      0.40                    NA   NA -0.494655633    0      1000
-    ## 41      0.41                    NA   NA -0.519988779    0      1000
-    ## 42      0.42                    NA   NA -0.546195482    0      1000
-    ## 43      0.43                    NA   NA -0.573321719    0      1000
-    ## 44      0.44                    NA   NA -0.601416750    0      1000
-    ## 45      0.45                    NA   NA -0.630533418    0      1000
-    ## [1] "probability threshold"
-    ## [1] 0.01
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.1032066
-    ## 1 2 0.1873731
-    ## [1] "pdgivenx"
-    ## [1] 0.1032066
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.1032066
-    ## [1] "probability threshold"
-    ## [1] 0.02
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.1032066
-    ## 1 2 0.1873731
-    ## [1] "pdgivenx"
-    ## [1] 0.1032066
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.1032066
-    ## [1] "probability threshold"
-    ## [1] 0.03
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.1032066
-    ## 1 2 0.1873731
-    ## [1] "pdgivenx"
-    ## [1] 0.1032066
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.1032066
-    ## [1] "probability threshold"
-    ## [1] 0.04
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.1032066
-    ## 1 2 0.1873731
-    ## [1] "pdgivenx"
-    ## [1] 0.1032066
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.1032066
-    ## [1] "probability threshold"
-    ## [1] 0.05
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.1032066
-    ## 1 2 0.1873731
-    ## [1] "pdgivenx"
-    ## [1] 0.1032066
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.1032066
-    ## [1] "probability threshold"
-    ## [1] 0.06
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.1039356
-    ## 1 2 0.1886966
-    ## [1] "pdgivenx"
-    ## [1] 0.1039356
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.1039356
-    ## [1] "probability threshold"
-    ## [1] 0.07
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.1096348
-    ## 1 2 0.1960113
-    ## [1] "pdgivenx"
-    ## [1] 0.1096348
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.1096348
-    ## [1] "probability threshold"
-    ## [1] 0.08
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.1282406
-    ## 1 2 0.2128211
-    ## [1] "pdgivenx"
-    ## [1] 0.1282406
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.1282406
-    ## [1] "probability threshold"
-    ## [1] 0.09
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.1412345
-    ## 1 2 0.2240219
-    ## [1] "pdgivenx"
-    ## [1] 0.1412345
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.1412345
-    ## [1] "probability threshold"
-    ## [1] 0.1
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.1526723
-    ## 1 2 0.2270964
-    ## [1] "pdgivenx"
-    ## [1] 0.1526723
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.1526723
-    ## [1] "probability threshold"
-    ## [1] 0.11
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.1648598
-    ## 1 2 0.2321005
-    ## [1] "pdgivenx"
-    ## [1] 0.1648598
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.1648598
-    ## [1] "probability threshold"
-    ## [1] 0.12
-    ## [1] "time points by threshold"
-    ##            5
-    ## 1 1 0.175773
-    ## 1 2 0.242276
-    ## [1] "pdgivenx"
-    ## [1] 0.175773
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.175773
-    ## [1] "probability threshold"
-    ## [1] 0.13
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.1897033
-    ## 1 2 0.2493170
-    ## [1] "pdgivenx"
-    ## [1] 0.1897033
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.1897033
-    ## [1] "probability threshold"
-    ## [1] 0.14
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.1955836
-    ## 1 2 0.2586751
-    ## [1] "pdgivenx"
-    ## [1] 0.1955836
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.1955836
-    ## [1] "probability threshold"
-    ## [1] 0.15
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.2067669
-    ## 1 2 0.2706767
-    ## [1] "pdgivenx"
-    ## [1] 0.2067669
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.2067669
-    ## [1] "probability threshold"
-    ## [1] 0.16
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.2146119
-    ## 1 2 0.2831050
-    ## [1] "pdgivenx"
-    ## [1] 0.2146119
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.2146119
-    ## [1] "probability threshold"
-    ## [1] 0.17
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.2368421
-    ## 1 2 0.2789474
-    ## [1] "pdgivenx"
-    ## [1] 0.2368421
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.2368421
-    ## [1] "probability threshold"
-    ## [1] 0.18
-    ## [1] "time points by threshold"
-    ##           5
-    ## 1 1 0.25625
-    ## 1 2 0.28125
-    ## [1] "pdgivenx"
-    ## [1] 0.25625
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.25625
-    ## [1] "probability threshold"
-    ## [1] 0.19
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.2720588
-    ## 1 2 0.2867647
-    ## [1] "pdgivenx"
-    ## [1] 0.2720588
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.2720588
-    ## [1] "probability threshold"
-    ## [1] 0.2
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.2956522
-    ## 1 2 0.2608696
-    ## [1] "pdgivenx"
-    ## [1] 0.2956522
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.2956522
-    ## [1] "probability threshold"
-    ## [1] 0.21
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.2990654
-    ## 1 2 0.2523364
-    ## [1] "pdgivenx"
-    ## [1] 0.2990654
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.2990654
-    ## [1] "probability threshold"
-    ## [1] 0.22
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.3118280
-    ## 1 2 0.2688172
-    ## [1] "pdgivenx"
-    ## [1] 0.311828
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.311828
-    ## [1] "probability threshold"
-    ## [1] 0.23
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.3209877
-    ## 1 2 0.2469136
-    ## [1] "pdgivenx"
-    ## [1] 0.3209877
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.3209877
-    ## [1] "probability threshold"
-    ## [1] 0.24
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.3108108
-    ## 1 2 0.2702703
-    ## [1] "pdgivenx"
-    ## [1] 0.3108108
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.3108108
-    ## [1] "probability threshold"
-    ## [1] 0.25
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.3283582
-    ## 1 2 0.2537313
-    ## [1] "pdgivenx"
-    ## [1] 0.3283582
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.3283582
-    ## [1] "probability threshold"
-    ## [1] 0.26
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.3606557
-    ## 1 2 0.2459016
-    ## [1] "pdgivenx"
-    ## [1] 0.3606557
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.3606557
-    ## [1] "probability threshold"
-    ## [1] 0.27
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.3703704
-    ## 1 2 0.2222222
-    ## [1] "pdgivenx"
-    ## [1] 0.3703704
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.3703704
-    ## [1] "probability threshold"
-    ## [1] 0.28
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.3958333
-    ## 1 2 0.2291667
-    ## [1] "pdgivenx"
-    ## [1] 0.3958333
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.3958333
-    ## [1] "probability threshold"
-    ## [1] 0.29
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.3902439
-    ## 1 2 0.2439024
-    ## [1] "pdgivenx"
-    ## [1] 0.3902439
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.3902439
-    ## [1] "probability threshold"
-    ## [1] 0.3
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.3428571
-    ## 1 2 0.2571429
-    ## [1] "pdgivenx"
-    ## [1] 0.3428571
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.3428571
-    ## [1] "probability threshold"
-    ## [1] 0.31
-    ## [1] "time points by threshold"
-    ##       5
-    ## 1 1 0.3
-    ## 1 2 0.3
-    ## [1] "pdgivenx"
-    ## [1] 0.3
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.3
-    ## [1] "probability threshold"
-    ## [1] 0.32
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.3333333
-    ## 1 2 0.2592593
-    ## [1] "pdgivenx"
-    ## [1] 0.3333333
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.3333333
-    ## [1] "probability threshold"
-    ## [1] 0.33
-    ## [1] "time points by threshold"
-    ##        5
-    ## 1 1 0.35
-    ## 1 2 0.25
-    ## [1] "pdgivenx"
-    ## [1] 0.35
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.35
-    ## [1] "probability threshold"
-    ## [1] 0.34
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.3333333
-    ## 1 2 0.2222222
-    ## [1] "pdgivenx"
-    ## [1] 0.3333333
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.3333333
-    ## [1] "probability threshold"
-    ## [1] 0.35
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.3529412
-    ## 1 2 0.1764706
-    ## [1] "pdgivenx"
-    ## [1] 0.3529412
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.3529412
-    ## [1] "probability threshold"
-    ## [1] 0.36
-    ## [1] "time points by threshold"
-    ##          5
-    ## 1 1 0.3750
-    ## 1 2 0.1875
-    ## [1] "pdgivenx"
-    ## [1] 0.375
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.375
-    ## [1] "probability threshold"
-    ## [1] 0.37
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.2857143
-    ## 1 2 0.2142857
-    ## [1] "pdgivenx"
-    ## [1] 0.2857143
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.2857143
-    ## [1] "probability threshold"
-    ## [1] 0.38
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.2727273
-    ## 1 2 0.2727273
-    ## [1] "pdgivenx"
-    ## [1] 0.2727273
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.2727273
-    ## [1] "probability threshold"
-    ## [1] 0.39
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.2727273
-    ## 1 2 0.2727273
-    ## [1] "pdgivenx"
-    ## [1] 0.2727273
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.2727273
-    ## [1] "probability threshold"
-    ## [1] 0.4
-    ## [1] "time points by threshold"
-    ##        5
-    ## 1 1 0.25
-    ## 1 2 0.25
-    ## [1] "pdgivenx"
-    ## [1] 0.25
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.25
-    ## [1] "probability threshold"
-    ## [1] 0.41
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.2857143
-    ## 1 2 0.2857143
-    ## [1] "pdgivenx"
-    ## [1] 0.2857143
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.2857143
-    ## [1] "probability threshold"
-    ## [1] 0.42
-    ## [1] "time points by threshold"
-    ##             5
-    ## 1 1 0.1666667
-    ## 1 2 0.3333333
-    ## [1] "pdgivenx"
-    ## [1] 0.1666667
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.1666667
-    ## [1] "probability threshold"
-    ## [1] 0.43
-    ## [1] "time points by threshold"
-    ##        5
-    ## 1 1 0.25
-    ## 1 2 0.25
-    ## [1] "pdgivenx"
-    ## [1] 0.25
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.25
-    ## [1] "probability threshold"
-    ## [1] 0.44
-    ## [1] "time points by threshold"
-    ##        5
-    ## 1 1 0.25
-    ## 1 2 0.25
-    ## [1] "pdgivenx"
-    ## [1] 0.25
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0.25
-    ## [1] "probability threshold"
-    ## [1] 0.45
-    ## [1] "time points by threshold"
-    ##       5
-    ## 1 2 0.5
-    ## [1] "pdgivenx"
-    ## [1] 0
-    ## [1] "nb[t,]$cuminc"
-    ## [1] 0
-
-<img src="imgs/Prediction_CSC/dca-2.png" width="672" style="display: block; margin: auto;" />
+<img src="imgs/Prediction_CSC/dca-1.png" width="672" style="display: block; margin: auto;" /><img src="imgs/Prediction_CSC/dca-2.png" width="672" style="display: block; margin: auto;" />
 
 If we choose a threshold of 20%, the model had a net benefit of 0.011 in
 the development data. In the validation data, the model had a net
@@ -3664,7 +2902,7 @@ benefit of 0.014 choosing a threshold of 20%.
 sessionInfo()
 ```
 
-    ## R version 4.3.2 (2023-10-31 ucrt)
+    ## R version 4.3.3 (2024-02-29 ucrt)
     ## Platform: x86_64-w64-mingw32/x64 (64-bit)
     ## Running under: Windows 10 x64 (build 19045)
     ## 
@@ -3672,11 +2910,13 @@ sessionInfo()
     ## 
     ## 
     ## locale:
-    ## [1] LC_COLLATE=English_Israel.utf8  LC_CTYPE=English_Israel.utf8   
-    ## [3] LC_MONETARY=English_Israel.utf8 LC_NUMERIC=C                   
-    ## [5] LC_TIME=English_Israel.utf8    
+    ## [1] LC_COLLATE=English_United Kingdom.utf8 
+    ## [2] LC_CTYPE=English_United Kingdom.utf8   
+    ## [3] LC_MONETARY=English_United Kingdom.utf8
+    ## [4] LC_NUMERIC=C                           
+    ## [5] LC_TIME=English_United Kingdom.utf8    
     ## 
-    ## time zone: Asia/Jerusalem
+    ## time zone: Europe/Rome
     ## tzcode source: internal
     ## 
     ## attached base packages:
@@ -3685,47 +2925,47 @@ sessionInfo()
     ## 
     ## other attached packages:
     ##  [1] webshot_0.5.5             gridExtra_2.3            
-    ##  [3] rsample_1.2.1             lubridate_1.9.3          
+    ##  [3] rsample_1.3.1             lubridate_1.9.4          
     ##  [5] forcats_1.0.0             stringr_1.5.1            
     ##  [7] dplyr_1.1.4               purrr_1.0.2              
     ##  [9] readr_2.1.5               tidyr_1.3.1              
-    ## [11] tibble_3.2.1              ggplot2_3.5.0            
-    ## [13] tidyverse_2.0.0           boot_1.3-28.1            
+    ## [11] tibble_3.2.1              ggplot2_3.5.2            
+    ## [13] tidyverse_2.0.0           boot_1.3-31              
     ## [15] gtsummary_1.7.2           kableExtra_1.4.0         
-    ## [17] knitr_1.45                plotrix_3.8-4            
-    ## [19] pec_2023.04.12            prodlim_2023.08.28       
-    ## [21] pseudo_1.4.3              geepack_1.3.11           
-    ## [23] KMsurv_0.1-5              mstate_0.3.2             
-    ## [25] riskRegression_2023.12.21 cmprsk_2.2-11            
-    ## [27] rms_6.8-0                 Hmisc_5.1-2              
-    ## [29] survival_3.5-7            pacman_0.5.1             
+    ## [17] knitr_1.50                plotrix_3.8-4            
+    ## [19] pec_2025.06.24            prodlim_2025.04.28       
+    ## [21] pseudo_1.4.3              geepack_1.3.12           
+    ## [23] KMsurv_0.1-6              mstate_0.3.3             
+    ## [25] riskRegression_2025.05.20 cmprsk_2.2-12            
+    ## [27] rms_6.8-0                 Hmisc_5.2-3              
+    ## [29] survival_3.8-3            pacman_0.5.1             
     ## 
     ## loaded via a namespace (and not attached):
-    ##  [1] sandwich_3.1-0       rlang_1.1.3          magrittr_2.0.3      
-    ##  [4] multcomp_1.4-25      furrr_0.3.1          polspline_1.1.24    
-    ##  [7] compiler_4.3.2       systemfonts_1.0.5    vctrs_0.6.5         
-    ## [10] quantreg_5.97        pkgconfig_2.0.3      fastmap_1.1.1       
-    ## [13] backports_1.4.1      utf8_1.2.4           rmarkdown_2.25      
-    ## [16] tzdb_0.4.0           MatrixModels_0.5-3   xfun_0.41           
-    ## [19] highr_0.10           timereg_2.0.5        broom_1.0.5         
-    ## [22] parallel_4.3.2       cluster_2.1.4        R6_2.5.1            
-    ## [25] stringi_1.8.3        parallelly_1.37.1    rpart_4.1.21        
-    ## [28] numDeriv_2016.8-1.1  Rcpp_1.0.12          iterators_1.0.14    
-    ## [31] future.apply_1.11.2  zoo_1.8-12           base64enc_0.1-3     
-    ## [34] timechange_0.3.0     Matrix_1.6-1.1       nnet_7.3-19         
-    ## [37] tidyselect_1.2.0     rstudioapi_0.17.1    yaml_2.3.8          
-    ## [40] codetools_0.2-19     listenv_0.9.1        lattice_0.21-9      
-    ## [43] withr_3.0.0          evaluate_0.23        foreign_0.8-85      
-    ## [46] future_1.33.1        xml2_1.3.6           pillar_1.9.0        
-    ## [49] checkmate_2.3.1      foreach_1.5.2        generics_0.1.3      
-    ## [52] rprojroot_2.0.4      hms_1.1.3            munsell_0.5.0       
-    ## [55] scales_1.3.0         globals_0.16.2       glue_1.7.0          
-    ## [58] tools_4.3.2          data.table_1.15.0    SparseM_1.81        
-    ## [61] mvtnorm_1.2-4        grid_4.3.2           colorspace_2.1-0    
-    ## [64] nlme_3.1-163         htmlTable_2.4.2      Formula_1.2-5       
-    ## [67] cli_3.6.2            fansi_1.0.6          broom.helpers_1.15.0
-    ## [70] viridisLite_0.4.2    svglite_2.1.3        lava_1.8.0          
-    ## [73] mets_1.3.4           gt_0.10.1            gtable_0.3.4        
-    ## [76] digest_0.6.34        TH.data_1.1-2        htmlwidgets_1.6.4   
-    ## [79] htmltools_0.5.7      lifecycle_1.0.4      here_1.0.1          
-    ## [82] MASS_7.3-60
+    ##  [1] sandwich_3.1-1       rlang_1.1.6          magrittr_2.0.3      
+    ##  [4] multcomp_1.4-28      furrr_0.3.1          polspline_1.1.25    
+    ##  [7] compiler_4.3.3       systemfonts_1.2.3    vctrs_0.6.5         
+    ## [10] quantreg_6.1         pkgconfig_2.0.3      shape_1.4.6.1       
+    ## [13] fastmap_1.2.0        backports_1.5.0      rmarkdown_2.29      
+    ## [16] tzdb_0.5.0           MatrixModels_0.5-4   xfun_0.52           
+    ## [19] glmnet_4.1-10        timereg_2.0.6        broom_1.0.9         
+    ## [22] parallel_4.3.3       cluster_2.1.8.1      R6_2.6.1            
+    ## [25] stringi_1.8.4        RColorBrewer_1.1-3   parallelly_1.45.1   
+    ## [28] rpart_4.1.24         numDeriv_2016.8-1.1  Rcpp_1.1.0          
+    ## [31] iterators_1.0.14     future.apply_1.20.0  zoo_1.8-14          
+    ## [34] base64enc_0.1-3      timechange_0.3.0     Matrix_1.6-5        
+    ## [37] nnet_7.3-20          tidyselect_1.2.1     rstudioapi_0.17.1   
+    ## [40] yaml_2.3.10          codetools_0.2-20     listenv_0.9.1       
+    ## [43] lattice_0.22-5       withr_3.0.2          evaluate_1.0.4      
+    ## [46] foreign_0.8-90       future_1.67.0        xml2_1.3.6          
+    ## [49] pillar_1.11.0        checkmate_2.3.2      foreach_1.5.2       
+    ## [52] generics_0.1.4       rprojroot_2.1.0      hms_1.1.3           
+    ## [55] scales_1.4.0         globals_0.18.0       glue_1.7.0          
+    ## [58] tools_4.3.3          data.table_1.16.2    SparseM_1.84-2      
+    ## [61] mvtnorm_1.3-3        grid_4.3.3           colorspace_2.1-1    
+    ## [64] nlme_3.1-164         htmlTable_2.4.3      Formula_1.2-5       
+    ## [67] cli_3.6.2            broom.helpers_1.15.0 viridisLite_0.4.2   
+    ## [70] svglite_2.1.3        lava_1.8.1           mets_1.3.5          
+    ## [73] gt_1.0.0             gtable_0.3.6         digest_0.6.35       
+    ## [76] TH.data_1.1-3        htmlwidgets_1.6.4    farver_2.1.2        
+    ## [79] htmltools_0.5.8.1    lifecycle_1.0.4      here_1.0.1          
+    ## [82] MASS_7.3-60.0.1
